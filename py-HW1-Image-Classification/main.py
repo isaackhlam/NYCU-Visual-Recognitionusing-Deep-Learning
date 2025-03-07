@@ -1,4 +1,4 @@
-from utils import build_parser
+from utils.parser import build_parser
 
 if __name__ == "__main__":
     parser = build_parser()
