@@ -1,6 +1,7 @@
 import torch.nn as nn
 import torch.optim as optim
 
+
 def build_criterion(args, logger):
     criterion = None
     if args.loss_function == "CrossEntropy":
@@ -12,6 +13,7 @@ def build_criterion(args, logger):
     logger.info(f"Using Loss Function: {args.loss_function}")
     return criterion
 
+
 def build_optimizer(args, logger, model):
     optimizer = None
     if args.loss_function == "Adam":
@@ -22,4 +24,3 @@ def build_optimizer(args, logger, model):
 
     logger.info(f"Using Optimizer: {args.optimizer}")
     return optimizer
-
