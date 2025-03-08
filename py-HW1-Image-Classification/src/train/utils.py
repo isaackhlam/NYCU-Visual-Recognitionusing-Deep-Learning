@@ -16,8 +16,8 @@ def build_criterion(args, logger):
 
 def build_optimizer(args, logger, model):
     optimizer = None
-    if args.loss_function == "Adam":
-        optimizer = optim.Adam(model.parameters, args.lr)
+    if args.optimizer == "Adam":
+        optimizer = optim.Adam(model.parameters(), lr=args.lr)
     else:
         logger.error(f"Unknown Optimizer: {args.optimizer}")
         raise Exception("Unknown Optmizer")
