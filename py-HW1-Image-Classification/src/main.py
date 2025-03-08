@@ -34,7 +34,7 @@ def main(args):
         )
 
     best_valid_loss = float("inf")
-    for epoch in range(args.epoch):
+    for epoch in range(args.epochs):
         best_valid_loss = training_loop(
             args,
             logger,
