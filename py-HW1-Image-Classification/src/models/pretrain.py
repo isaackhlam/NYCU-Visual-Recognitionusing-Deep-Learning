@@ -19,25 +19,25 @@ def build_model(args: Namespace, logger: Logger) -> Tuple[Module, Optional[Compo
 
     if args.model == "resnet18":
         if args.pretrain_model_weight is not None:
-            weights = ResNet18_Weights(args.pretrain_model_weight)
+            weights = ResNet18_Weights[args.pretrain_model_weight]
         model = resnet18(weights)
     elif args.model == "resnet34":
         if args.pretrain_model_weight is not None:
-            weights = ResNet34_Weights(args.pretrain_model_weight)
+            weights = ResNet34_Weights[args.pretrain_model_weight]
         model = resnet34(weights)
     elif args.model == "resnet50":
         if args.pretrain_model_weight is not None:
-            weights = ResNet50_Weights(args.pretrain_model_weight)
+            weights = ResNet50_Weights[args.pretrain_model_weight]
             transform = weights.transforms()
         model = resnet50(weights)
     elif args.model == "resnet101":
         if args.pretrain_model_weight is not None:
-            weights = ResNet101_Weights(args.pretrain_model_weight)
+            weights = ResNet101_Weights[args.pretrain_model_weight]
             transform = weights.transforms()
         model = resnet101(weights)
     elif args.model == "resnet152":
         if args.pretrain_model_weight is not None:
-            weights = ResNet152_Weights(args.pretrain_model_weight)
+            weights = ResNet152_Weights[args.pretrain_model_weight]
             transform = weights.transforms()
         model = resnet152(weights)
 
