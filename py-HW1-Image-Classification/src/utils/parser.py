@@ -16,6 +16,8 @@ def build_parser():
     parser.add_argument("--model_save_prefix_name", default=None, type=str)
     parser.add_argument("--model_save_interval", default=10, type=int)
     parser.add_argument("--data_path", default="./data", type=str)
+    parser.add_argument("--shuffle_data", default=True, type=bool)
+    parser.add_argument("--dataloader_num_workers", default=8, type=int)
     parser.add_argument("--train_data_name", default=None, type=str)
     parser.add_argument("--valid_data_name", default=None, type=str)
     parser.add_argument("--test_data_name", default=None, type=str)
