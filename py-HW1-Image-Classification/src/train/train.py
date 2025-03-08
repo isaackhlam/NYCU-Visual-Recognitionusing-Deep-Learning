@@ -46,7 +46,7 @@ def training_loop(
         _, pred = torch.max(outputs, 1)
         train_loss.append(loss.item())
         train_corr += ((pred == y).sum()).item()
-        acc = (((pred == y).sum()) / y.size()).item()
+        acc = ((pred == y).sum() / y.numel()).item()
 
         if args.enable_wandb:
             wandb.log(
@@ -69,7 +69,7 @@ def training_loop(
             outputs = model(x)
             loss = criterion(outputs, y)
             _, pred = torch.max(outputs, 1)
-            acc = (((pred == y).sum()) / y.size()).item()
+            acc = ((pred == y).sum() / y.numel()).item()
 
             valid_loss.append(loss.item())
             valid_corr += ((pred == y).sum()).item()
