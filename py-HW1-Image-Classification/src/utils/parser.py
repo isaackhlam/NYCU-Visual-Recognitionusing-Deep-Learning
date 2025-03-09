@@ -24,5 +24,6 @@ def build_parser():
     parser.add_argument("--valid_data_name", default="val", type=str)
     parser.add_argument("--test_data_name", default="test", type=str)
     parser.add_argument("--gradient_clipping", default=None, type=float)
+    parser.add_argument("--freeze_layer", default=None, type=str)
     parser.add_argument("--enable_wandb", default=False, type=bool)
     return parser
