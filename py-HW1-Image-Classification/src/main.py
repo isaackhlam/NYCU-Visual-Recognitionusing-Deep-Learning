@@ -5,13 +5,14 @@ from train.train import training_loop
 from train.utils import build_criterion, build_optimizer
 from utils.logger import setup_logger
 from utils.parser import build_parser
-from utils.utils import check_model_size
+from utils.utils import check_model_size, parse_model_name
 
 
 def main(args):
     logger = setup_logger()
     model, transform = build_model(args, logger)
     model_num_params = check_model_size(logger, model)
+    parse_model_name(args, logger)
     criterion = build_criterion(args, logger)
     optimizer = build_optimizer(args, logger, model)
     train_data = ImageDataset(f"{args.data_path}/train", transform)
@@ -30,6 +31,7 @@ def main(args):
                 "model_num_params": model_num_params,
                 "loss_function": args.loss_function,
                 "optimizer": args.optimizer,
+                "model_save_path": args.model_save_path,
             },
         )
 
