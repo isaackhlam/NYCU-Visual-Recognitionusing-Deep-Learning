@@ -31,6 +31,7 @@ def training_loop(
     train_corr = 0
     model.to(args.device)
     model.train()
+    print("")
     p_bar = tqdm(train_dataloader, desc=f"Epoch {epoch+1}/{args.epochs}")
     for batch in p_bar:
         x, y = batch
@@ -61,9 +62,9 @@ def training_loop(
     model.eval()
     valid_loss = []
     valid_corr = 0
-
+    p_bar = tqdm(valid_dataloader, desc=f"Epoch {epoch+1}/{args.epochs}")
     with torch.no_grad():
-        for batch in tqdm(valid_dataloader):
+        for batch in p_bar:
             x, y = batch
             x, y = x.to(args.device), y.to(args.device)
             outputs = model(x)
@@ -73,11 +74,12 @@ def training_loop(
 
             valid_loss.append(loss.item())
             valid_corr += ((pred == y).sum()).item()
+            p_bar.set_postfix({"loss": f"{loss.item():.4f}", "acc": f"{acc:.4f}"})
 
     train_loss = sum(train_loss) / len(train_loss)
-    train_acc = train_corr / len(train_dataloader)
+    train_acc = train_corr / len(train_dataloader.dataset)
     valid_loss = sum(valid_loss) / len(valid_loss)
-    valid_acc = valid_corr / len(valid_dataloader)
+    valid_acc = valid_corr / len(valid_dataloader.dataset)
 
     if args.enable_wandb:
         wandb.log(
@@ -89,7 +91,7 @@ def training_loop(
             }
         )
 
-    logger.info(f"\nEpoch {epoch+1}/{args.epochs}")
+    logger.info(f"Epoch {epoch+1}/{args.epochs}")
     logger.info(f"Train Loss: {train_loss:.4f}, Train Acc: {train_acc:.4f}")
     logger.info(f"Valid Loss: {valid_loss:.4f}, Valid Acc: {valid_acc:.4f}")
 

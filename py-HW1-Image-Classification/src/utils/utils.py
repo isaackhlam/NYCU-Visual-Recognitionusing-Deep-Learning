@@ -12,6 +12,7 @@ def check_model_size(logger, model):
             f"Current model is too large and not allowed. Number of model parameters: {model_num_params}. Maximum allowed: {MAX_ALLOWED_MODEL_PARAMS}"
         )
         raise Exception("Exceeded Maximum allowed model parameters")
+    logger.info(f"Current model size: {model_num_params:,}")
     return model_num_params
 
 
