@@ -1,7 +1,7 @@
 import wandb
 from dataset.dataset import ImageDataset, build_dataloader
 from models.pretrain import build_model
-from train.train import training_loop
+from train.train import save_model, training_loop
 from train.utils import build_criterion, build_optimizer
 from utils.logger import setup_logger
 from utils.parser import build_parser
@@ -15,8 +15,8 @@ def main(args):
     parse_model_name(args, logger)
     criterion = build_criterion(args, logger)
     optimizer = build_optimizer(args, logger, model)
-    train_data = ImageDataset(f"{args.data_path}/train", transform)
-    valid_data = ImageDataset(f"{args.data_path}/val", transform)
+    train_data = ImageDataset(f"{args.data_path}/{args.train_data_name}", transform)
+    valid_data = ImageDataset(f"{args.data_path}/{args.valid_data_name}", transform)
     train_dataloader = build_dataloader(args, train_data)
     valid_dataloader = build_dataloader(args, valid_data)
 
@@ -36,8 +36,9 @@ def main(args):
         )
 
     best_valid_loss = float("inf")
+    stale = 0
     for epoch in range(args.epochs):
-        best_valid_loss = training_loop(
+        valid_loss = training_loop(
             args,
             logger,
             epoch,
@@ -48,6 +49,21 @@ def main(args):
             valid_dataloader,
             best_valid_loss,
         )
+        stale += 1
+        if valid_loss < best_valid_loss:
+            stale = 0
+            best_valid_loss = valid_loss
+            continue
+        if stale > args.patient:
+            logger.info(
+                f"Model doesn't not improve for {args.patient} epochs, early stopping."
+            )
+            break
+
+    logger.info(f"Training Finished, saving final model at epoch {epoch}")
+    save_model(args, epoch, model, optimizer, f"{args.model_save_path}_final.ckpt")
+    if args.enable_wandb:
+        wandb.finish()
 
 
 if __name__ == "__main__":
