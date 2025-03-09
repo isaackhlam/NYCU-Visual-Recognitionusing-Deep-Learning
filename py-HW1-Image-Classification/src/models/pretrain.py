@@ -2,12 +2,14 @@ from argparse import Namespace
 from logging import Logger
 from typing import Optional, Tuple
 
-from torch.nn import Module
+from torch.nn import Linear, Module
 from torchvision.models import (ResNet18_Weights, ResNet34_Weights,
                                 ResNet50_Weights, ResNet101_Weights,
                                 ResNet152_Weights, resnet18, resnet34,
                                 resnet50, resnet101, resnet152)
 from torchvision.transforms import Compose
+
+TOTAL_IMG_CLASS = 100
 
 
 def build_model(args: Namespace, logger: Logger) -> Tuple[Module, Optional[Compose]]:
@@ -41,6 +43,7 @@ def build_model(args: Namespace, logger: Logger) -> Tuple[Module, Optional[Compo
             transform = weights.transforms()
         model = resnet152(weights)
 
+    model.fc = Linear(model.in_features, TOTAL_IMG_CLASS)
     if weights is not None:
         transform = weights.transforms()
     return model, transform
