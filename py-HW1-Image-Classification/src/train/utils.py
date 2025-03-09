@@ -18,6 +18,12 @@ def build_optimizer(args, logger, model):
     optimizer = None
     if args.optimizer == "Adam":
         optimizer = optim.Adam(model.parameters(), lr=args.lr)
+    elif args.optimizer == "Adafactor":
+        optimizer = optim.Adafactor(model.parameters(), lr=args.lr)
+    elif args.optimizer == "AdamW":
+        optimizer = optim.AdamW(model.parameters(), lr=args.lr)
+    elif args.optimizer == "SGD":
+        optimizer = optim.SGD(model.parameters(), lr=args.lr)
     else:
         logger.error(f"Unknown Optimizer: {args.optimizer}")
         raise Exception("Unknown Optmizer")

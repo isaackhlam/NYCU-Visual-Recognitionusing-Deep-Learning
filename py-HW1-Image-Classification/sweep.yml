@@ -18,3 +18,5 @@ parameters:
     values: ["None", "conv"]
   device:
     value: cuda
+  optimizer:
+    values: ["Adam", "AdamW", "Adafactor", "SGD"]
