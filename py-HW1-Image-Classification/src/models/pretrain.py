@@ -110,5 +110,11 @@ def build_model(args: Namespace, logger: Logger) -> Tuple[Module, Optional[Compo
     if args.freeze_layer == "conv":
         set_all_layer_freeze(args, logger, model)
         set_layer_freeze(args, logger, model, "fc", False)
+    elif args.freeze_layer == "half":
+        set_all_layer_freeze(args, logger, model)
+        set_layer_freeze(args, logger, model, "layer3", False)
+        set_layer_freeze(args, logger, model, "layer4", False)
+        set_layer_freeze(args, logger, model, "fc", False)
+
 
     return model, transform

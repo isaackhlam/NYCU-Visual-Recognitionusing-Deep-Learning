@@ -1,11 +1,11 @@
-method: random
+method: grid
 program: src/main.py
 metric:
   name: epoch_valid_acc
   goal: maximize
 parameters:
   lr:
-    values: [0.0001, 0.00005, 0.00001, 0.000005, 0.000001]
+    values: [0.001, 0.0001, 0.00001, 0.000001]
   gradient_clipping:
     value: 1.0
   model:
@@ -15,7 +15,7 @@ parameters:
   enable_wandb:
     value: True
   freeze_layer:
-    values: ["None", "conv"]
+    values: ["None", "conv", "half"]
   device:
     value: cuda
   optimizer:
