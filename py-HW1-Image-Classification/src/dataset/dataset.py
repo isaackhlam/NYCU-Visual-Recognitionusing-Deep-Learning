@@ -27,7 +27,7 @@ class ImageDataset(Dataset):
 class TestDataset(Dataset):
     def __init__(self, path, transform):
         self.transform = transform
-        self.data = [im for im in Path("path").glob("*")]
+        self.data = [im for im in Path(path).glob("*")]
 
     def __len__(self):
         return len(self.data)

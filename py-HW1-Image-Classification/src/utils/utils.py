@@ -17,7 +17,7 @@ def check_model_size(logger, model):
 
 
 def parse_model_name(args, logger):
-    name = f"{args.model}_lr-{args.lr}_loss-{args.loss_function}_opt-{args.optimizer}_seed-{args.seed}_freeze-{args.freeze_layer}"
+    name = f"{args.model}_lr-{args.lr}_loss-{args.loss_function}_opt-{args.optimizer}_seed-{args.seed}_freeze-{args.freeze_layer}_transform-{args.transform}"
     logger.info(f"Automatically parsed name: {name}")
     if args.save_with_generated_name:
         args.model_save_path = f"./weights/{name}"
