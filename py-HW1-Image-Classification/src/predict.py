@@ -3,8 +3,8 @@ from dataset.dataset import TestDataset, build_dataloader
 from models.pretrain import build_model
 from tqdm import tqdm
 from utils.logger import setup_logger
-from utils.utils import parse_model_name
 from utils.parser import build_parser
+from utils.utils import parse_model_name
 
 
 def predict(args, logger):
@@ -12,7 +12,7 @@ def predict(args, logger):
     model_name = f"{model_name}_best.ckpt"
     args.transform = "NoAug"
     model, transform = build_model(args, logger)
-    checkpoint = torch.load(model_name, weights_only=True)
+    checkpoint = torch.load(f"./weights/{model_name}", weights_only=True)
     model.load_state_dict(checkpoint["model_state_dict"])
     test_data = TestDataset(f"{args.data_path}/{args.test_data_name}", transform)
     args.shuffle_data = False

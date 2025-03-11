@@ -4,10 +4,18 @@ from typing import Optional, Tuple
 
 import torch
 from torch.nn import Linear, Module
-from torchvision.models import (ResNet18_Weights, ResNet34_Weights,
-                                ResNet50_Weights, ResNet101_Weights,
-                                ResNet152_Weights, resnet18, resnet34,
-                                resnet50, resnet101, resnet152)
+from torchvision.models import (
+    ResNet18_Weights,
+    ResNet34_Weights,
+    ResNet50_Weights,
+    ResNet101_Weights,
+    ResNet152_Weights,
+    resnet18,
+    resnet34,
+    resnet50,
+    resnet101,
+    resnet152,
+)
 from torchvision.transforms import Compose, InterpolationMode, v2
 
 TOTAL_IMG_CLASS = 100
