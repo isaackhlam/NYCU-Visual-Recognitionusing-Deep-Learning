@@ -19,4 +19,6 @@ parameters:
   device:
     value: cuda
   optimizer:
-    values: ["Adam", "AdamW", "Adafactor", "SGD"]
+    value: AdamW
+  transform:
+    values: ["autoAug", "customAug", "pretrain"]

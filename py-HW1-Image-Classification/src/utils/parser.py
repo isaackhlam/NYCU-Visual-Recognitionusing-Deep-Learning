@@ -26,4 +26,5 @@ def build_parser():
     parser.add_argument("--gradient_clipping", default=None, type=float)
     parser.add_argument("--freeze_layer", default=None, type=str)
     parser.add_argument("--enable_wandb", default=False, type=bool)
+    parser.add_argument("--transform", default="", type=str)
     return parser
