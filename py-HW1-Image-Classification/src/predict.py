@@ -1,9 +1,10 @@
 import torch
-from utils.utils import parse_model_name, build_parser
-from utils.logger import setup_logger
-from models.pretrain import build_model
 from dataset.dataset import TestDataset, build_dataloader
+from models.pretrain import build_model
 from tqdm import tqdm
+from utils.logger import setup_logger
+from utils.utils import build_parser, parse_model_name
+
 
 def predict(args, logger):
     model_name = parse_model_name(args, logger)
@@ -23,15 +24,16 @@ def predict(args, logger):
         imgs = imgs.to(args.device)
         outputs = model(imgs)
         _, pred = torch.max(outputs, 1)
-        pred = pred.to('cpu').tolist()
+        pred = pred.to("cpu").tolist()
         paths = paths.tolist()
         input_list.extend(paths)
         pred_list.extend(pred)
 
-    with open('submission.csv', 'w') as f:
+    with open("submission.csv", "w") as f:
         f.write("image_name,pred_label")
         for x in zip(input_list, pred_list):
             f.write(f"{x[0]},{x[1]}")
+
 
 if __name__ == "__main__":
     parser = build_parser()

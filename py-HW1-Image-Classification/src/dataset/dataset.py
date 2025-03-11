@@ -28,12 +28,15 @@ class TestDataset(Dataset):
     def __init__(self, path, transform):
         self.transform = transform
         self.data = [im for im in Path("path").glob("*")]
+
     def __len__(self):
         return len(self.data)
+
     def __getitem__(self, idx):
         im = Image.open(self.data[idx]).convert("RGB")
         im = self.transform(im)
         return im, self.data[idx].stem
+
 
 def build_dataloader(args, dataset):
     return DataLoader(

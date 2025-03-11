@@ -8,9 +8,7 @@ from torchvision.models import (ResNet18_Weights, ResNet34_Weights,
                                 ResNet50_Weights, ResNet101_Weights,
                                 ResNet152_Weights, resnet18, resnet34,
                                 resnet50, resnet101, resnet152)
-from torchvision.transforms import Compose
-from torchvision.transforms import InterpolationMode
-from torchvision.transforms import v2
+from torchvision.transforms import Compose, InterpolationMode, v2
 
 TOTAL_IMG_CLASS = 100
 
@@ -19,29 +17,33 @@ def build_custom_transform(
     mean=[0.485, 0.456, 0.406],
     std=[0.229, 0.224, 0.225],
 ):
-    return v2.Compose([
-        v2.ToImage(),
-        v2.ToDtype(torch.uint8, scale=True),
-        v2.Resize((256, 256), InterpolationMode.BILINEAR, antialias=True),
-        v2.RandomResizedCrop(size=(224, 224), antialias=True),
-        v2.RandomHorizontalFlip(p=0.5),
-        v2.ColorJitter(0.1, 0.1, 0.1, 0.1),
-        v2.ToDtype(torch.float32, scale=True),
-        v2.Normalize(mean=mean, std=std),
-    ])
+    return v2.Compose(
+        [
+            v2.ToImage(),
+            v2.ToDtype(torch.uint8, scale=True),
+            v2.Resize((256, 256), InterpolationMode.BILINEAR, antialias=True),
+            v2.RandomResizedCrop(size=(224, 224), antialias=True),
+            v2.RandomHorizontalFlip(p=0.5),
+            v2.ColorJitter(0.1, 0.1, 0.1, 0.1),
+            v2.ToDtype(torch.float32, scale=True),
+            v2.Normalize(mean=mean, std=std),
+        ]
+    )
 
 
 def build_autoaug():
-    mean=[0.485, 0.456, 0.406]
-    std=[0.229, 0.224, 0.225]
-    return v2.Compose([
-        v2.ToImage(),
-        v2.ToDtype(torch.uint8, scale=True),
-        v2.Resize((224, 224), InterpolationMode.BILINEAR),
-        v2.AutoAugment(v2.AutoAugmentPolicy.IMAGENET),
-        v2.ToDtype(torch.float32, scale=True),
-        v2.Normalize(mean=mean, std=std),
-    ])
+    mean = [0.485, 0.456, 0.406]
+    std = [0.229, 0.224, 0.225]
+    return v2.Compose(
+        [
+            v2.ToImage(),
+            v2.ToDtype(torch.uint8, scale=True),
+            v2.Resize((224, 224), InterpolationMode.BILINEAR),
+            v2.AutoAugment(v2.AutoAugmentPolicy.IMAGENET),
+            v2.ToDtype(torch.float32, scale=True),
+            v2.Normalize(mean=mean, std=std),
+        ]
+    )
 
 
 def set_layer_freeze(args, logger, model, layer_name, toFreeze=True):
@@ -115,6 +117,5 @@ def build_model(args: Namespace, logger: Logger) -> Tuple[Module, Optional[Compo
         set_layer_freeze(args, logger, model, "layer3", False)
         set_layer_freeze(args, logger, model, "layer4", False)
         set_layer_freeze(args, logger, model, "fc", False)
-
 
     return model, transform
