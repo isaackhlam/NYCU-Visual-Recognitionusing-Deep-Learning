@@ -3,7 +3,8 @@ from dataset.dataset import TestDataset, build_dataloader
 from models.pretrain import build_model
 from tqdm import tqdm
 from utils.logger import setup_logger
-from utils.utils import build_parser, parse_model_name
+from utils.utils import parse_model_name
+from utils.parser import build_parser
 
 
 def predict(args, logger):
