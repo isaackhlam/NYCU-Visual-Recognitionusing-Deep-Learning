@@ -4,18 +4,14 @@ from typing import Optional, Tuple
 
 import torch
 from torch.nn import Linear, Module
-from torchvision.models import (
-    ResNet18_Weights,
-    ResNet34_Weights,
-    ResNet50_Weights,
-    ResNet101_Weights,
-    ResNet152_Weights,
-    resnet18,
-    resnet34,
-    resnet50,
-    resnet101,
-    resnet152,
-)
+from torchvision.models import (ResNet18_Weights, ResNet34_Weights,
+                                ResNet50_Weights, ResNet101_Weights,
+                                ResNet152_Weights, ResNeXt50_32X4D_Weights,
+                                ResNeXt101_32X8D_Weights,
+                                ResNeXt101_64X4D_Weights, resnet18, resnet34,
+                                resnet50, resnet101, resnet152,
+                                resnext50_32x4d, resnext101_32x8d,
+                                resnext101_64x4d)
 from torchvision.transforms import Compose, InterpolationMode, v2
 
 TOTAL_IMG_CLASS = 100
@@ -112,6 +108,18 @@ def build_model(args: Namespace, logger: Logger) -> Tuple[Module, Optional[Compo
         if args.pretrain_model_weight is not None:
             weights = ResNet152_Weights[args.pretrain_model_weight]
         model = resnet152(weights)
+    elif args.model == "resnext50_32x4d":
+        if args.pretrain_model_weight is not None:
+            weights = ResNeXt50_32X4D_Weights[args.pretrain_model_weight]
+        model = resnext50_32x4d(weights)
+    elif args.model == "resnext101_32x8d":
+        if args.pretrain_model_weight is not None:
+            weights = ResNeXt101_32X8D_Weights[args.pretrain_model_weight]
+        model = resnext101_32x8d(weights)
+    elif args.model == "resnext101_64x4d":
+        if args.pretrain_model_weight is not None:
+            weights = ResNeXt101_64X4D_Weights[args.pretrain_model_weight]
+        model = resnext101_64x4d(weights)
 
     model.fc = Linear(model.fc.in_features, TOTAL_IMG_CLASS)
     if weights is not None and transform is None:
