@@ -31,9 +31,9 @@ def predict(args, logger):
         pred_list.extend(pred)
 
     with open("submission.csv", "w") as f:
-        f.write("image_name,pred_label")
+        f.write("image_name,pred_label\n")
         for x in zip(input_list, pred_list):
-            f.write(f"{x[0]},{x[1]}")
+            f.write(f"{x[0]},{x[1]}\n")
 
 
 if __name__ == "__main__":
