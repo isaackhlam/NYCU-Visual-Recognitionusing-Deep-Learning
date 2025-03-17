@@ -1,4 +1,5 @@
 import torch
+import zipfile
 from dataset.dataset import TestDataset, build_dataloader
 from models.pretrain import build_model
 from tqdm import tqdm
@@ -9,10 +10,9 @@ from utils.utils import parse_model_name
 
 def predict(args, logger):
     model_name = parse_model_name(args, logger)
-    model_name = f"{model_name}_best.ckpt"
     args.transform = "NoAug"
     model, transform = build_model(args, logger)
-    checkpoint = torch.load(f"./weights/{model_name}", weights_only=True)
+    checkpoint = torch.load(f"./weights/{model_name}_best.ckpt", weights_only=True)
     model.load_state_dict(checkpoint["model_state_dict"])
     test_data = TestDataset(f"{args.data_path}/{args.test_data_name}", transform)
     args.shuffle_data = False
@@ -35,6 +35,9 @@ def predict(args, logger):
         f.write("image_name,pred_label\n")
         for x in zip(input_list, pred_list):
             f.write(f"{x[0]},{x[1]}\n")
+
+    with zipfile.ZipFile(f"./result/{model_name}.zip", "w") as f:
+        f.write("prediction.csv", arcname="prediction.csv")
 
 
 if __name__ == "__main__":
