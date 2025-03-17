@@ -17,6 +17,7 @@ def predict(args, logger):
     test_data = TestDataset(f"{args.data_path}/{args.test_data_name}", transform)
     args.shuffle_data = False
     test_dataloader = build_dataloader(args, test_data)
+    model.to(args.device)
 
     input_list = []
     pred_list = []
