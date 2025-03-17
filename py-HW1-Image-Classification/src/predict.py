@@ -26,7 +26,7 @@ def predict(args, logger):
         outputs = model(imgs)
         _, pred = torch.max(outputs, 1)
         pred = pred.to("cpu").tolist()
-        paths = paths.tolist()
+        paths = list(paths)
         input_list.extend(paths)
         pred_list.extend(pred)
 
