@@ -1,5 +1,6 @@
-import torch
 import zipfile
+
+import torch
 from dataset.dataset import TestDataset, build_dataloader
 from models.pretrain import build_model
 from tqdm import tqdm
@@ -21,15 +22,17 @@ def predict(args, logger):
 
     input_list = []
     pred_list = []
-    for batch in tqdm(test_dataloader):
-        imgs, paths = batch
-        imgs = imgs.to(args.device)
-        outputs = model(imgs)
-        _, pred = torch.max(outputs, 1)
-        pred = pred.to("cpu").tolist()
-        paths = list(paths)
-        input_list.extend(paths)
-        pred_list.extend(pred)
+    model.eval()
+    with torch.no_grad():
+        for batch in tqdm(test_dataloader):
+            imgs, paths = batch
+            imgs = imgs.to(args.device)
+            outputs = model(imgs)
+            _, pred = torch.max(outputs, 1)
+            pred = pred.to("cpu").tolist()
+            paths = list(paths)
+            input_list.extend(paths)
+            pred_list.extend(pred)
 
     with open("submission.csv", "w") as f:
         f.write("image_name,pred_label\n")
