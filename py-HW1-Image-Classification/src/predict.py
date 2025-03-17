@@ -34,7 +34,7 @@ def predict(args, logger):
             input_list.extend(paths)
             pred_list.extend(pred)
 
-    with open("submission.csv", "w") as f:
+    with open("prediction.csv", "w") as f:
         f.write("image_name,pred_label\n")
         for x in zip(input_list, pred_list):
             f.write(f"{x[0]},{x[1]}\n")
