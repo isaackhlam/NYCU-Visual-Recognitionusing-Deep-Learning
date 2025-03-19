@@ -11,15 +11,13 @@ class FocalLoss(nn.Module):
         self.reduction = reduction
 
     def forward(self, inputs, targets):
-        probs = torch.sigmoid(inputs)
-        bce_loss = nn.functional.binary_cross_entropy_with_logits(
-            inputs, targets, reduction="none"
-        )
+        probs = nn.functional.softmax(inputs, dim=1)
+        ce_loss = nn.functional.cross_entropy(inputs, targets, reduction="none")
 
-        p_t = probs * targets + (1 - probs) * (1 - targets)
-        a_t = self.alpha * targets + (1 - self.alpha) * (1 - targets)
+        p_t = probs.gather(1, targets.unsqueeze(1))
+        a_t = self.alpha * torch.one_likes(p_t)
 
-        loss = a_t * (1 - p_t) ** self.gamma * bce_loss
+        loss = a_t * (1 - p_t) ** self.gamma * ce_loss
 
         if self.reduction == "mean":
             return loss.mean()
