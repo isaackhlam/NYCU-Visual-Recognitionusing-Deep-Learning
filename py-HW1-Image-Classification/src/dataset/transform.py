@@ -1,41 +1,49 @@
-from torchvision.transforms import InterpolationMode, v2
-import torch
 import albumentations as A
+import torch
 from albumentations.pytorch import ToTensorV2
-
+from torchvision.transforms import InterpolationMode, v2
 
 
 def build_advanced_transofrm(
     mean=[0.485, 0.456, 0.406],
     std=[0.229, 0.224, 0.225],
 ):
-    train_transform = A.Compose([
-        A.SmallestMaxSize(max_size=300),
-        A.OneOf([
-            A.MotionBlur(p=.2),
-            A.MedianBlur(blur_limit=3, p=0.1),
-            A.Blur(blur_limit=3, p=0.1),
-        ], p=0.2),
-        A.ShiftScaleRotate(shift_limit=0.05, scale_limit=0.05, rotation_limit=15, p=0.5),
-        A.RandomCrop(height=224, width=224),
-        A.HorizontalFlip(p=0.5),
-        A.RGBShift(r_shift_limit=15, g_shift_limit=15, b_shift_limit=15, p=0.5),
-        A.RandomBrightnessContrast(p=0.5),
-        A.HueSaturationValue(p=0.2),
-        A.GaussianBlur(blur_limit=(3, 7), p=0.1),
-        A.CLAHE(clip_limit=2.0, tile_grid_size=8, p=0.2),
-        A.ElasticTransform(p=0.2),
-        A.RandomGamma(p=0.2),
-        A.Normalize(mean=mean, std=std),
-        ToTensorV2(),
-    ])
+    train_transform = A.Compose(
+        [
+            A.SmallestMaxSize(max_size=300),
+            A.OneOf(
+                [
+                    A.MotionBlur(p=0.2),
+                    A.MedianBlur(blur_limit=3, p=0.1),
+                    A.Blur(blur_limit=3, p=0.1),
+                ],
+                p=0.2,
+            ),
+            A.ShiftScaleRotate(
+                shift_limit=0.05, scale_limit=0.05, rotation_limit=15, p=0.5
+            ),
+            A.RandomCrop(height=224, width=224),
+            A.HorizontalFlip(p=0.5),
+            A.RGBShift(r_shift_limit=15, g_shift_limit=15, b_shift_limit=15, p=0.5),
+            A.RandomBrightnessContrast(p=0.5),
+            A.HueSaturationValue(p=0.2),
+            A.GaussianBlur(blur_limit=(3, 7), p=0.1),
+            A.CLAHE(clip_limit=2.0, tile_grid_size=8, p=0.2),
+            A.ElasticTransform(p=0.2),
+            A.RandomGamma(p=0.2),
+            A.Normalize(mean=mean, std=std),
+            ToTensorV2(),
+        ]
+    )
 
-    test_transform = A.Compose([
-        A.SmallestMaxSize(max_size=300),
-        A.CenterCrop(height=224, height=224),
-        A.Normalize(mean=mean, std=std),
-        ToTensorV2(),
-    ])
+    test_transform = A.Compose(
+        [
+            A.SmallestMaxSize(max_size=300),
+            A.CenterCrop(height=224, height=224),
+            A.Normalize(mean=mean, std=std),
+            ToTensorV2(),
+        ]
+    )
     return train_transform, test_transform
 
 
@@ -91,4 +99,3 @@ def build_autoaug():
         ]
     )
     return train_transform, test_transform
-

@@ -16,10 +16,7 @@ from torchvision.transforms import Compose, InterpolationMode, v2
 
 from ..dataset.transform import build_autoaug, build_custom_transform
 
-
 TOTAL_IMG_CLASS = 100
-
-
 
 
 def set_layer_freeze(args, logger, model, layer_name, toFreeze=True):

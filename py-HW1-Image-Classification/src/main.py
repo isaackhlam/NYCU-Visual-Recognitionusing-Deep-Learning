@@ -15,8 +15,12 @@ def main(args):
     parse_model_name(args, logger)
     criterion = build_criterion(args, logger)
     optimizer = build_optimizer(args, logger, model)
-    train_data = ImageDataset(f"{args.data_path}/{args.train_data_name}", train_transform)
-    valid_data = ImageDataset(f"{args.data_path}/{args.valid_data_name}", test_transform)
+    train_data = ImageDataset(
+        f"{args.data_path}/{args.train_data_name}", train_transform
+    )
+    valid_data = ImageDataset(
+        f"{args.data_path}/{args.valid_data_name}", test_transform
+    )
     train_dataloader = build_dataloader(args, train_data)
     valid_dataloader = build_dataloader(args, valid_data)
 
