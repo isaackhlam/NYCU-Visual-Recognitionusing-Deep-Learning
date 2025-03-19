@@ -49,10 +49,10 @@ def set_all_layer_freeze(args, logger, model, toFreeze=True):
 def build_model(args: Namespace, logger: Logger) -> Tuple[Module, Optional[Compose]]:
     transform = None
     if args.transform == "autoAug":
-        transform = build_autoaug()
+        train_transform, test_transform = build_autoaug()
         logger.info("Using auto augmentation")
     elif args.transform == "customAug":
-        transform = build_custom_transform()
+        train_transform, test_transform = build_custom_transform()
         logger.info("Using Custom Augmentation")
 
     if args.pretrain_model_weight is None:
@@ -94,8 +94,9 @@ def build_model(args: Namespace, logger: Logger) -> Tuple[Module, Optional[Compo
         model = resnext101_64x4d(weights)
 
     model.fc = Linear(model.fc.in_features, TOTAL_IMG_CLASS)
-    if weights is not None and transform is None:
-        transform = weights.transforms()
+    if weights is not None and train_transform is None:
+        train_transform = weights.transforms()
+        test_transform = weights.transforms()
 
     if args.freeze_layer == "conv":
         set_all_layer_freeze(args, logger, model)
@@ -106,4 +107,4 @@ def build_model(args: Namespace, logger: Logger) -> Tuple[Module, Optional[Compo
         set_layer_freeze(args, logger, model, "layer4", False)
         set_layer_freeze(args, logger, model, "fc", False)
 
-    return model, transform
+    return model, train_transform, test_transform

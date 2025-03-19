@@ -30,20 +30,20 @@ def build_advanced_transofrm(
         ToTensorV2(),
     ])
 
-    valid_transform = A.Compose([
+    test_transform = A.Compose([
         A.SmallestMaxSize(max_size=300),
         A.CenterCrop(height=224, height=224),
         A.Normalize(mean=mean, std=std),
         ToTensorV2(),
     ])
-    return train_transform, valid_transform
+    return train_transform, test_transform
 
 
 def build_custom_transform(
     mean=[0.485, 0.456, 0.406],
     std=[0.229, 0.224, 0.225],
 ):
-    return v2.Compose(
+    train_transform = v2.Compose(
         [
             v2.ToImage(),
             v2.ToDtype(torch.uint8, scale=True),
@@ -55,12 +55,23 @@ def build_custom_transform(
             v2.Normalize(mean=mean, std=std),
         ]
     )
+    test_transform = v2.Compose(
+        [
+            v2.ToImage(),
+            v2.ToDtype(torch.uint8, scale=True),
+            v2.Resize((256, 256), InterpolationMode.BILINEAR, antialias=True),
+            v2.CenterCrop(size=(224, 224), antialias=True),
+            v2.ToDtype(torch.float32, scale=True),
+            v2.Normalize(mean=mean, std=std),
+        ]
+    )
+    return train_transform, test_transform
 
 
 def build_autoaug():
     mean = [0.485, 0.456, 0.406]
     std = [0.229, 0.224, 0.225]
-    return v2.Compose(
+    train_transform = v2.Compose(
         [
             v2.ToImage(),
             v2.ToDtype(torch.uint8, scale=True),
@@ -70,4 +81,14 @@ def build_autoaug():
             v2.Normalize(mean=mean, std=std),
         ]
     )
+    test_transform = v2.Compose(
+        [
+            v2.ToImage(),
+            v2.ToDtype(torch.uint8, scale=True),
+            v2.Resize((224, 224), InterpolationMode.BILINEAR),
+            v2.ToDtype(torch.float32, scale=True),
+            v2.Normalize(mean=mean, std=std),
+        ]
+    )
+    return train_transform, test_transform
 

@@ -10,13 +10,13 @@ from utils.utils import check_model_size, parse_model_name
 
 def main(args):
     logger = setup_logger()
-    model, transform = build_model(args, logger)
+    model, train_transform, test_transform = build_model(args, logger)
     model_num_params = check_model_size(logger, model)
     parse_model_name(args, logger)
     criterion = build_criterion(args, logger)
     optimizer = build_optimizer(args, logger, model)
-    train_data = ImageDataset(f"{args.data_path}/{args.train_data_name}", transform)
-    valid_data = ImageDataset(f"{args.data_path}/{args.valid_data_name}", transform)
+    train_data = ImageDataset(f"{args.data_path}/{args.train_data_name}", train_transform)
+    valid_data = ImageDataset(f"{args.data_path}/{args.valid_data_name}", test_transform)
     train_dataloader = build_dataloader(args, train_data)
     valid_dataloader = build_dataloader(args, valid_data)
 
