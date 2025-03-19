@@ -15,7 +15,7 @@ class FocalLoss(nn.Module):
         ce_loss = nn.functional.cross_entropy(inputs, targets, reduction="none")
 
         p_t = probs.gather(1, targets.unsqueeze(1))
-        a_t = self.alpha * torch.one_likes(p_t)
+        a_t = self.alpha * torch.ones_like(p_t)
 
         loss = a_t * (1 - p_t) ** self.gamma * ce_loss
 

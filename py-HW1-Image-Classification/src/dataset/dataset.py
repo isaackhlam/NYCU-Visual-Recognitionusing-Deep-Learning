@@ -1,5 +1,6 @@
 from pathlib import Path
 
+import cv2
 from PIL import Image
 from torch.utils.data import DataLoader, Dataset
 
@@ -7,8 +8,9 @@ TOTAL_IMG_CLASS = 100
 
 
 class ImageDataset(Dataset):
-    def __init__(self, path, transform):
+    def __init__(self, path, transform, is_albumentation):
         self.transform = transform
+        self.is_albumentation = is_albumentation
         self.img_pairs = [
             [img, i]
             for i in range(TOTAL_IMG_CLASS)
@@ -19,8 +21,13 @@ class ImageDataset(Dataset):
         return len(self.img_pairs)
 
     def __getitem__(self, idx):
-        im = Image.open(self.img_pairs[idx][0]).convert("RGB")
-        im = self.transform(im)
+        if self.is_albumentation:
+            im = cv2.imread(self.img_pairs[idx][0])
+            im = cv2.cvtColor(im, cv2.COLOR_BGR2RGB)
+            im = self.transform(image=im)["image"]
+        else:
+            im = Image.open(self.img_pairs[idx][0]).convert("RGB")
+            im = self.transform(im)
         return im, self.img_pairs[idx][1]
 
 

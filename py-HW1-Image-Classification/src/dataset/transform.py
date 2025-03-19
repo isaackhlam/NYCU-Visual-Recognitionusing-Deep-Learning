@@ -4,7 +4,7 @@ from albumentations.pytorch import ToTensorV2
 from torchvision.transforms import InterpolationMode, v2
 
 
-def build_advanced_transform(
+def build_advance_aug(
     mean=[0.485, 0.456, 0.406],
     std=[0.229, 0.224, 0.225],
 ):
@@ -28,7 +28,7 @@ def build_advanced_transform(
             A.RandomBrightnessContrast(p=0.5),
             A.HueSaturationValue(p=0.2),
             A.GaussianBlur(blur_limit=(3, 7), p=0.1),
-            A.CLAHE(clip_limit=2.0, tile_grid_size=8, p=0.2),
+            # A.CLAHE(clip_limit=2.0, tile_grid_size=8, p=0.2),
             A.ElasticTransform(p=0.2),
             A.RandomGamma(p=0.2),
             A.Normalize(mean=mean, std=std),
