@@ -14,7 +14,7 @@ from torchvision.models import (ResNet18_Weights, ResNet34_Weights,
                                 resnext101_64x4d)
 from torchvision.transforms import Compose, InterpolationMode, v2
 
-from ..dataset.transform import build_autoaug, build_custom_transform
+from dataset.transform import build_autoaug, build_custom_transform
 
 TOTAL_IMG_CLASS = 100
 
@@ -44,7 +44,8 @@ def set_all_layer_freeze(args, logger, model, toFreeze=True):
 
 
 def build_model(args: Namespace, logger: Logger) -> Tuple[Module, Optional[Compose]]:
-    transform = None
+    train_transform = None
+    test_transform = None
     if args.transform == "autoAug":
         train_transform, test_transform = build_autoaug()
         logger.info("Using auto augmentation")

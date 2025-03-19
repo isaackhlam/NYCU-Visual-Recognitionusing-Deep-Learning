@@ -39,7 +39,7 @@ def build_advanced_transofrm(
     test_transform = A.Compose(
         [
             A.SmallestMaxSize(max_size=300),
-            A.CenterCrop(height=224, height=224),
+            A.CenterCrop(height=224, width=224),
             A.Normalize(mean=mean, std=std),
             ToTensorV2(),
         ]
