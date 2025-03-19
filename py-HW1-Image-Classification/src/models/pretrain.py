@@ -3,6 +3,7 @@ from logging import Logger
 from typing import Optional, Tuple
 
 import torch
+from dataset.transform import build_autoaug, build_custom_transform
 from torch.nn import Linear, Module
 from torchvision.models import (ResNet18_Weights, ResNet34_Weights,
                                 ResNet50_Weights, ResNet101_Weights,
@@ -13,8 +14,6 @@ from torchvision.models import (ResNet18_Weights, ResNet34_Weights,
                                 resnext50_32x4d, resnext101_32x8d,
                                 resnext101_64x4d)
 from torchvision.transforms import Compose, InterpolationMode, v2
-
-from dataset.transform import build_autoaug, build_custom_transform
 
 TOTAL_IMG_CLASS = 100
 
