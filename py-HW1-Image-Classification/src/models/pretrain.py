@@ -3,7 +3,8 @@ from logging import Logger
 from typing import Optional, Tuple
 
 import torch
-from dataset.transform import build_autoaug, build_custom_transform
+from dataset.transform import (build_advance_aug, build_autoaug,
+                               build_custom_transform)
 from torch.nn import Linear, Module
 from torchvision.models import (ResNet18_Weights, ResNet34_Weights,
                                 ResNet50_Weights, ResNet101_Weights,
@@ -51,6 +52,9 @@ def build_model(args: Namespace, logger: Logger) -> Tuple[Module, Optional[Compo
     elif args.transform == "customAug":
         train_transform, test_transform = build_custom_transform()
         logger.info("Using Custom Augmentation")
+    elif args.transform == "advanceAug":
+        train_transform, test_transform = build_advance_aug()
+        logger.info("Using Advanced Augmentation from Albumentations")
 
     if args.pretrain_model_weight is None:
         logger.info("Pretrain Weight is not set, model weights will be randomly init")
