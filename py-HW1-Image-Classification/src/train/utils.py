@@ -30,9 +30,9 @@ class FocalLoss(nn.Module):
 def build_criterion(args, logger):
     criterion = None
     if args.loss_function == "CrossEntropy":
-        criterion = nn.CrossEntropyLoss()
+        criterion = nn.CrossEntropyLoss(reduction="none")
     elif args.loss_function == "Focal":
-        criterion = FocalLoss()
+        criterion = FocalLoss(reduction="none")
     else:
         logger.error(f"Unknown Loss Function: {args.loss_function}")
         raise Exception("Unknown Loss Function")
