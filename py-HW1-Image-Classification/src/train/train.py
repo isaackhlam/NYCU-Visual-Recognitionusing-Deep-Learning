@@ -129,7 +129,6 @@ def training_loop(
         plt.tight_layout()
         wandb.log(
             {
-                "epoch": epoch,
                 "epoch_train_loss": train_loss,
                 "epoch_train_acc": train_acc,
                 "epoch_valid_loss": valid_loss,

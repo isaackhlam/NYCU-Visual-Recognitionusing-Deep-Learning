@@ -24,7 +24,7 @@ class FocalLoss(nn.Module):
         elif self.reduction == "sum":
             return loss.sum()
         else:
-            return loss
+            return loss.mean(dim=1)
 
 
 def build_criterion(args, logger):
