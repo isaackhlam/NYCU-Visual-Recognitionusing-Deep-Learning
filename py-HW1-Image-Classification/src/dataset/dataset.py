@@ -2,20 +2,32 @@ from pathlib import Path
 
 import cv2
 from PIL import Image
+from sklearn.model_selection import train_test_split
 from torch.utils.data import DataLoader, Dataset
 
 TOTAL_IMG_CLASS = 100
 
 
 class ImageDataset(Dataset):
-    def __init__(self, path, transform, is_albumentation):
+    def __init__(self, args, path, transform, split="train"):
         self.transform = transform
-        self.is_albumentation = is_albumentation
+        self.is_albumentation = args.transform == "advanceAug"
         self.img_pairs = [
             [img, i]
             for i in range(TOTAL_IMG_CLASS)
             for img in Path(f"{path}/{str(i)}").glob("*")
         ]
+        img, label = zip(*self.img_pairs)
+
+        train_img, valid_img, train_label, valid_label = train_test_split(
+            img, label, test_size=args.val_ratio, stratify=label, random_state=args.seed
+        )
+        if split == "train":
+            self.img_pairs = [[x, y] for x, y in zip(train_img, train_label)]
+        elif split == "valid":
+            self.img_pairs = [[x, y] for x, y in zip(valid_img, valid_label)]
+        else:
+            raise ValueError(f"Split can only be train or valid, got: {split}")
 
     def __len__(self):
         return len(self.img_pairs)
