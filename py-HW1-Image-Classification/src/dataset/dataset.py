@@ -44,16 +44,22 @@ class ImageDataset(Dataset):
 
 
 class TestDataset(Dataset):
-    def __init__(self, path, transform):
+    def __init__(self, args, path, transform):
         self.transform = transform
+        self.is_albumentation = args.transform == "advanceAug"
         self.data = [im for im in Path(path).glob("*")]
 
     def __len__(self):
         return len(self.data)
 
     def __getitem__(self, idx):
-        im = Image.open(self.data[idx]).convert("RGB")
-        im = self.transform(im)
+        if self.is_albumentation:
+            im = cv2.imread(self.data[idx])
+            im = cv2.cvtColor(im, cv2.COLOR_BGR2RGB)
+            im = self.transform(image=im)["image"]
+        else:
+            im = Image.open(self.data[idx]).convert("RGB")
+            im = self.transform(im)
         return im, self.data[idx].stem
 
 

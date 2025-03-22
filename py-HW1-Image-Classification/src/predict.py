@@ -11,11 +11,10 @@ from utils.utils import parse_model_name
 
 def predict(args, logger):
     model_name = parse_model_name(args, logger)
-    args.transform = "NoAug"
-    model, transform = build_model(args, logger)
+    model, _, transform = build_model(args, logger)
     checkpoint = torch.load(f"./weights/{model_name}_best.ckpt", weights_only=True)
     model.load_state_dict(checkpoint["model_state_dict"])
-    test_data = TestDataset(f"{args.data_path}/{args.test_data_name}", transform)
+    test_data = TestDataset(args, f"{args.data_path}/{args.test_data_name}", transform)
     args.shuffle_data = False
     test_dataloader = build_dataloader(args, test_data)
     model.to(args.device)
