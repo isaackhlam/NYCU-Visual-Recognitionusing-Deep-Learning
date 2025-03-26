@@ -1,6 +1,19 @@
-# Visual Recognitionusing Deep Learning HW-1
+# Visual Recognition using Deep Learning Spring 2025 HW-1
 
-This repo contains code for the Visual Recognitionusing Deep Learning HW-1. You are adviced to run this code in isolated python envrionment via conda/mamba
+StudentID: 313554001
+Name: Lam Kin Ho
+
+This repo contains code for the Visual Recognitionusing Deep Learning HW-1.
+
+## Introduction
+
+This task involved performing a multiclass classification using a ResNet backbone, with the overall model parameter count limited to less than 100 million. The dataset consists of images of living creatures. While pretrained model weights from ImageNet are allowed, the use of additional data during the training process is not permitted.
+
+In line with the principle of ”standing on the shoulders of giants,” I opted to leverage a pretrained model available through PyTorch and employed model freezing techniques. A thorough hyperparameter search was conducted prior to scaling up the training process. The final model was selected based on the lowest validation loss.
+
+## Installation
+
+You are adviced to run this code in isolated python envrionment via conda/mamba
 
 ```sh
 conda env create -f environment.yml
@@ -47,6 +60,13 @@ To train a model run
 python src/main.py
 ```
 
+Or systematically searching by
+
+```sh
+wandb sweep sweep.yml
+wandb agent <sweep_id>
+```
+
 ## Test model
 
 To use a model, either manually
@@ -55,8 +75,14 @@ To use a model, either manually
 python src/predict.py
 ```
 
-or systematically by
+Or systematically by
 
 ```sh
 bash test.sh
 ```
+
+You can change the test script to fit your need.
+
+## Performance Snapshot
+
+![image](./docs/images/leaderboard.png)
