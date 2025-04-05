@@ -11,13 +11,10 @@ class FasterRCNNDataset(Dataset):
         with open(metadata_path) as f:
             self.data = json.load(f)
         self.images = self.data["images"]
-        self.annotations = [
-            {**x, "bbox": self._convert_bbox(x["bbox"])}
-            for x in self.data["annotations"]
-        ]
         self.categories = {cat["id"]: cat["name"] for cat in self.data["categories"]}
         self.root_dir = data_path
         self.transforms = transforms
+        self.annotations_dict = self._precompute_annotations()
 
     def __len__(self):
         return len(self.images)
@@ -29,24 +26,43 @@ class FasterRCNNDataset(Dataset):
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
         image_id = image_info["id"]
-        target = {"boxes": [], "labels": [], "area": [], "iscrowd": []}
-
-        for annotation in self.annotations:
-            if annotation["image_id"] == image_id:
-                target["boxes"].append(annotation["bbox"])
-                target["labels"].append(annotation["category_id"])
-                target["area"].append(annotation["area"])
-                target["iscrowd"].append(annotation["iscrowd"])
-
-        target["boxes"] = torch.tensor(target["boxes"], dtype=torch.float32)
-        target["labels"] = torch.tensor(target["labels"], dtype=torch.int64)
-        target["area"] = torch.tensor(target["area"], dtype=torch.float32)
-        target["iscrowd"] = torch.tensor(target["iscrowd"], dtype=torch.int64)
+        target = self.annotations_dict[image_id]  # Get precomputed annotations
 
         if self.transforms:
             image = self.transforms(image)
 
         return image, target
+
+    def _precompute_annotations(self):
+        annotations_dict = {}
+
+        for annotation in self.data["annotations"]:
+            image_id = annotation["image_id"]
+            bbox = self._convert_bbox(annotation["bbox"])
+            category_id = annotation["category_id"]
+            area = annotation["area"]
+            iscrowd = annotation["iscrowd"]
+
+            if image_id not in annotations_dict:
+                annotations_dict[image_id] = {
+                    "boxes": [],
+                    "labels": [],
+                    "area": [],
+                    "iscrowd": [],
+                }
+
+            annotations_dict[image_id]["boxes"].append(bbox)
+            annotations_dict[image_id]["labels"].append(category_id)
+            annotations_dict[image_id]["area"].append(area)
+            annotations_dict[image_id]["iscrowd"].append(iscrowd)
+
+        for image_id, target in annotations_dict.items():
+            target["boxes"] = torch.tensor(target["boxes"], dtype=torch.float32)
+            target["labels"] = torch.tensor(target["labels"], dtype=torch.int64)
+            target["area"] = torch.tensor(target["area"], dtype=torch.float32)
+            target["iscrowd"] = torch.tensor(target["iscrowd"], dtype=torch.int64)
+
+        return annotations_dict
 
     def _convert_bbox(self, bbox):
         x_min, y_min, w, h = bbox
