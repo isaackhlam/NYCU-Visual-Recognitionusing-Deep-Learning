@@ -1,8 +1,9 @@
 import torch
 import wandb
-from tqdm import tqdm
 from torchvision.datasets import CocoDetection
 from torchvision.ops import box_iou
+from tqdm import tqdm
+
 
 def evaluate(args, model, dataloader, epoch):
     model.eval()
@@ -20,16 +21,15 @@ def evaluate(args, model, dataloader, epoch):
                 all_preds.append(pred)
                 all_labels.append(target)
 
-
     iou_threshold = 0.5
 
     aps = []
     for gt, pred in zip(all_labels, all_preds):
-        gt_boxes = gt['boxes']
-        gt_labels = gt['labels']
-        pred_boxes = pred['boxes']
-        pred_scores = pred['scores']
-        pred_labels = pred['labels']
+        gt_boxes = gt["boxes"]
+        gt_labels = gt["labels"]
+        pred_boxes = pred["boxes"]
+        pred_scores = pred["scores"]
+        pred_labels = pred["labels"]
 
         iou = box_iou(pred_boxes, gt_boxes)
         matches = iou > iou_threshold
@@ -44,6 +44,7 @@ def evaluate(args, model, dataloader, epoch):
 
     mAP = sum(aps) / len(aps) if aps else 0
     return mAP
+
 
 def save_model(args, epoch, model, optimizer, save_path):
     model.to("cpu")
