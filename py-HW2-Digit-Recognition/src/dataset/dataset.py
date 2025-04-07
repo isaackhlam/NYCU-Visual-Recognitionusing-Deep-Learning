@@ -1,3 +1,4 @@
+from pathlib import Path
 import json
 import os
 
@@ -72,6 +73,24 @@ class FasterRCNNDataset(Dataset):
 
         return [x_min, y_min, x_max, y_max]
 
+class FasterRCNNTestDataset(Dataset):
+    def __init__(self, data_path, transforms=None):
+        self.images = [im for im in Path(data_path).glob('*')]
+        self.root_dir = data_path
+        self.transforms = transforms
+
+    def __len__(self):
+        return len(self.images)
+
+    def __getitem__(self, idx):
+        image = self.images[idx]
+        image = cv2.imread(image)
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+
+        if self.transforms:
+            image = self.transforms(image)
+
+        return image, self.images[idx].stem
 
 def build_dataloader(args, dataset):
 
