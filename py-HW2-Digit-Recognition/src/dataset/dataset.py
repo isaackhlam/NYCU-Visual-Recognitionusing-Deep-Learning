@@ -102,4 +102,5 @@ def build_dataloader(args, dataset):
         shuffle=args.shuffle_data,
         # num_workers=args.dataloader_num_workers,
         collate_fn=lambda x: tuple(zip(*x)),
+        pin_memory=True,
     )
