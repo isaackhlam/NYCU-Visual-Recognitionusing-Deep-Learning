@@ -1,6 +1,6 @@
-from pathlib import Path
 import json
 import os
+from pathlib import Path
 
 import cv2
 import torch
@@ -73,9 +73,10 @@ class FasterRCNNDataset(Dataset):
 
         return [x_min, y_min, x_max, y_max]
 
+
 class FasterRCNNTestDataset(Dataset):
     def __init__(self, data_path, transforms=None):
-        self.images = [im for im in Path(data_path).glob('*')]
+        self.images = [im for im in Path(data_path).glob("*")]
         self.root_dir = data_path
         self.transforms = transforms
 
@@ -91,6 +92,7 @@ class FasterRCNNTestDataset(Dataset):
             image = self.transforms(image)
 
         return image, self.images[idx].stem
+
 
 def build_dataloader(args, dataset):
 
