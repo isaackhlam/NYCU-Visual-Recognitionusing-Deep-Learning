@@ -16,3 +16,9 @@ When running `git` command, make sure running under top level directory.
 A Image classification task via ResNet backbone
 
 Please refer to [README](py-HW1-Image-Classification/README.md) of HW1.
+
+## HW2
+
+A Digit recognition task via fasterRCNN architecture
+
+Please refer to [README](py-HW2-Digit-Recognition/README.md) of HW2.
