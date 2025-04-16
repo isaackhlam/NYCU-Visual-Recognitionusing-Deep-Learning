@@ -32,12 +32,9 @@ class FasterRCNNDataset(Dataset):
         boxes = target["boxes"].numpy().tolist()
         labels = target["labels"].tolist()
 
-
         if self.transforms:
             transformed = self.transforms(
-                image=image,
-                bboxes=boxes,
-                category_ids=labels
+                image=image, bboxes=boxes, category_ids=labels
             )
             image = transformed["image"]
             boxes = transformed["bboxes"]
@@ -52,7 +49,7 @@ class FasterRCNNDataset(Dataset):
             "labels": labels,
             "image_id": torch.tensor([image_id]),
             "area": torch.tensor(target["area"], dtype=torch.float32),
-            "iscrowd": torch.tensor(target["iscrowd"], dtype=torch.int64)
+            "iscrowd": torch.tensor(target["iscrowd"], dtype=torch.int64),
         }
 
         return image, target

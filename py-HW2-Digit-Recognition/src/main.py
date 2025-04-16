@@ -1,7 +1,7 @@
 import torch.multiprocessing as mp
 import wandb
 from dataset.dataset import FasterRCNNDataset, build_dataloader
-from dataset.transform import get_transform, get_albumentation_transform
+from dataset.transform import get_albumentation_transform, get_transform
 from models.model import build_model
 from train.train import save_model, training_loop
 from train.utils import build_optimizer
