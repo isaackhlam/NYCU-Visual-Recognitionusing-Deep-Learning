@@ -27,10 +27,33 @@ class FasterRCNNDataset(Dataset):
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
         image_id = image_info["id"]
-        target = self.annotations_dict[image_id]  # Get precomputed annotations
+        target = self.annotations_dict[image_id]
+
+        boxes = target["boxes"].numpy().tolist()
+        labels = target["labels"].tolist()
+
 
         if self.transforms:
-            image = self.transforms(image)
+            transformed = self.transforms(
+                image=image,
+                bboxes=boxes,
+                category_ids=labels
+            )
+            image = transformed["image"]
+            boxes = transformed["bboxes"]
+            labels = transformed["category_ids"]
+            height, width = image.shape[1:]
+
+        boxes = torch.tensor(boxes, dtype=torch.float32)
+        labels = torch.tensor(labels, dtype=torch.int64)
+
+        target = {
+            "boxes": boxes,
+            "labels": labels,
+            "image_id": torch.tensor([image_id]),
+            "area": torch.tensor(target["area"], dtype=torch.float32),
+            "iscrowd": torch.tensor(target["iscrowd"], dtype=torch.int64)
+        }
 
         return image, target
 
@@ -58,10 +81,16 @@ class FasterRCNNDataset(Dataset):
             annotations_dict[image_id]["iscrowd"].append(iscrowd)
 
         for image_id, target in annotations_dict.items():
-            target["boxes"] = torch.tensor(target["boxes"], dtype=torch.float32)
-            target["labels"] = torch.tensor(target["labels"], dtype=torch.int64)
-            target["area"] = torch.tensor(target["area"], dtype=torch.float32)
-            target["iscrowd"] = torch.tensor(target["iscrowd"], dtype=torch.int64)
+            if len(target["boxes"]) == 0:
+                target["boxes"] = torch.empty((0, 4), dtype=torch.float32)
+                target["labels"] = torch.empty((0,), dtype=torch.int64)
+                target["area"] = torch.empty((0,), dtype=torch.float32)
+                target["iscrowd"] = torch.empty((0,), dtype=torch.int64)
+            else:
+                target["boxes"] = torch.tensor(target["boxes"], dtype=torch.float32)
+                target["labels"] = torch.tensor(target["labels"], dtype=torch.int64)
+                target["area"] = torch.tensor(target["area"], dtype=torch.float32)
+                target["iscrowd"] = torch.tensor(target["iscrowd"], dtype=torch.int64)
 
         return annotations_dict
 

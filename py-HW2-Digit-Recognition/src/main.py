@@ -1,7 +1,7 @@
 import torch.multiprocessing as mp
 import wandb
 from dataset.dataset import FasterRCNNDataset, build_dataloader
-from dataset.transform import get_transform
+from dataset.transform import get_transform, get_albumentation_transform
 from models.model import build_model
 from train.train import save_model, training_loop
 from train.utils import build_optimizer
@@ -17,8 +17,8 @@ def main(args):
     model_num_params = check_model_size(logger, model)
     parse_model_name(args, logger)
     optimizer = build_optimizer(args, logger, model)
-    train_transform = get_transform(train=True)
-    valid_transform = get_transform(train=False)
+    train_transform = get_albumentation_transform(train=True)
+    valid_transform = get_albumentation_transform(train=False)
     train_data = FasterRCNNDataset(
         f"{args.data_path}/{args.train_data_name}",
         f"{args.metadata_path}/train.json",
