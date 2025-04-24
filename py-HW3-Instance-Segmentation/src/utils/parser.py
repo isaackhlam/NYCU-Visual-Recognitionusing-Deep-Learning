@@ -11,7 +11,7 @@ def build_parser():
     parser.add_argument("--epochs", default=100, type=int)
     parser.add_argument("--loss_function", default="CrossEntropy", type=str)
     parser.add_argument("--optimizer", default="AdamW", type=str)
-    parser.add_argument("--model", default="mobilenet_320", type=str)
+    parser.add_argument("--model", default="resnet_50", type=str)
     parser.add_argument("--model_save_path", default="./weights", type=str)
     parser.add_argument("--model_save_prefix_name", default=None, type=str)
     parser.add_argument("--model_save_interval", default=10, type=int)
