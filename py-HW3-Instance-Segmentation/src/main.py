@@ -1,6 +1,6 @@
 import torch.multiprocessing as mp
 import wandb
-from dataset.dataset import FasterRCNNDataset, build_dataloader
+from dataset.dataset import MaskRCNNDataset, build_dataloader
 from dataset.transform import get_albumentation_transform, get_transform
 from models.model import build_model
 from train.train import save_model, training_loop
@@ -19,22 +19,23 @@ def main(args):
     optimizer = build_optimizer(args, logger, model)
     train_transform = get_transform(train=True)
     valid_transform = get_transform(train=False)
-    train_data = FasterRCNNDataset(
+    train_data = MaskRCNNDataset(
         f"{args.data_path}/{args.train_data_name}",
         f"{args.metadata_path}/train.json",
         train_transform,
     )
-    valid_data = FasterRCNNDataset(
-        f"{args.data_path}/{args.valid_data_name}",
-        f"{args.metadata_path}/valid.json",
-        valid_transform,
-    )
+    # valid_data = MaskRCNNDataset(
+        # f"{args.data_path}/{args.valid_data_name}",
+        # f"{args.metadata_path}/valid.json",
+        # valid_transform,
+    # )
+    valid_data = train_data
     train_dataloader = build_dataloader(args, train_data)
     valid_dataloader = build_dataloader(args, valid_data)
 
     if args.enable_wandb:
         wandb.init(
-            project="VR-hw2",
+            project="VR-hw3",
             config={
                 "learning_rate": args.lr,
                 "model": args.model,
