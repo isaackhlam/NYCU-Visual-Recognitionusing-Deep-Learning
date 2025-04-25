@@ -21,12 +21,10 @@ def main(args):
     valid_transform = get_transform(train=False)
     train_data = MaskRCNNDataset(
         f"{args.data_path}/{args.train_data_name}",
-        f"{args.metadata_path}/train.json",
         train_transform,
     )
     # valid_data = MaskRCNNDataset(
         # f"{args.data_path}/{args.valid_data_name}",
-        # f"{args.metadata_path}/valid.json",
         # valid_transform,
     # )
     valid_data = train_data
