@@ -1,6 +1,7 @@
 import glob
 import os
 from typing import Dict, Tuple
+from concurrent.futures import ProcessPoolExecutor
 
 import cv2
 import numpy as np
@@ -23,10 +24,8 @@ class MaskRCNNDataset(Dataset):
             if os.path.isdir(os.path.join(self.root_dir, d))
         ]
 
-        self.precache = []
-        for i, name in enumerate(self.image_dirs):
-            data = self._load_and_process_data(name)
-            self.precache.append(data)
+        with ProcessPoolExecutor(max_workers=8) as executor:
+            self.precache = list(executor.map(self._load_and_process_data, self.image_dirs))
 
     def _load_and_process_data(self, name):
         path = os.path.join(self.root_dir, name)
@@ -114,6 +113,7 @@ def build_dataloader(args, dataset):
         batch_size=args.batch_size,
         shuffle=args.shuffle_data,
         # num_workers=args.dataloader_num_workers,
+        num_workers=0,
         collate_fn=lambda x: tuple(zip(*x)),
         pin_memory=True,
     )
