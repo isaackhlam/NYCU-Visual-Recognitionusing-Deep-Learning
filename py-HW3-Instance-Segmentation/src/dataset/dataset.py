@@ -23,18 +23,18 @@ class MaskRCNNDataset(Dataset):
             if os.path.isdir(os.path.join(self.root_dir, d))
         ]
 
-    def __len__(self) -> int:
-        return len(self.image_dirs)
+        self.precache = []
+        for i, name in enumerate(self.image_dirs):
+            data = self._load_and_process_data(name)
+            self.precache.append(data)
 
-    def __getitem__(self, idx: int) -> Tuple[torch.Tensor, Dict]:
-        img_dir_name = self.image_dirs[idx]
-        img_dir_path = os.path.join(self.root_dir, img_dir_name)
+    def _load_and_process_data(self, name):
+        path = os.path.join(self.root_dir, name)
+        img_path = os.path.join(path, "image.tif")
+        img = cv2.imread(img_path)
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
-        img_path = os.path.join(img_dir_path, "image.tif")
-        image = cv2.imread(img_path)
-        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-
-        mask_paths = glob.glob(os.path.join(img_dir_path, "class*.tif"))
+        mask_paths = glob.glob(os.path.join(path, "class*.tif"))
 
         instance_masks = []
         class_ids = []
@@ -42,12 +42,11 @@ class MaskRCNNDataset(Dataset):
         encoded_masks = []
 
         for mask_path in mask_paths:
-            class_id = int(
-                os.path.basename(mask_path).replace("class", "").replace(".tif", "")
-            )
-            class_mask = sio.imread(mask_path)
+            class_id = int(os.path.basename(mask_path).replace("class", "").replace(".tif", ""))
 
+            class_mask = sio.imread(mask_path)
             binary_mask = (class_mask > 0).astype(np.uint8)
+
             labels = measure.label(binary_mask, connectivity=2)
             regions = measure.regionprops(labels)
 
@@ -71,26 +70,39 @@ class MaskRCNNDataset(Dataset):
         boxes = np.array(boxes, dtype=np.float32)
         class_ids = np.array(class_ids)
 
+        return {
+            "image": img,
+            "masks": masks,
+            "boxes": boxes,
+            "class_ids": class_ids,
+            "encoded_masks": encoded_masks
+        }
+
+    def __len__(self) -> int:
+        return len(self.precache)
+
+    def __getitem__(self, idx: int) -> Tuple[torch.Tensor, Dict]:
+        data = self.precache[idx]
+
+        image = data["image"].copy()
+        masks = data["masks"].copy()
+        boxes = data["boxes"].copy()
+        class_ids = data["class_ids"].copy()
+
         if self.transform:
             image = self.transform(image)
             masks = self.transform(masks)
 
         if not isinstance(image, torch.Tensor):
-            image = torch.as_tensor(image, dtype=torch.float32).permute(
-                2, 0, 1
-            )  # [H, W, C] -> [C, H, W]
+            image = torch.as_tensor(image, dtype=torch.float32).permute(2, 0, 1)
 
-        # Prepare the target dict for Mask R-CNN
         target = {
             "boxes": torch.as_tensor(boxes, dtype=torch.float32),
             "labels": torch.as_tensor(class_ids, dtype=torch.int64),
             "masks": torch.as_tensor(masks, dtype=torch.uint8),
             "image_id": torch.tensor([idx]),
-            "area": torch.as_tensor(
-                [(box[2] - box[0]) * (box[3] - box[1]) for box in boxes],
-                dtype=torch.float32,
-            ),
-            "iscrowd": torch.zeros((len(masks),), dtype=torch.int64),
+            "area": torch.as_tensor([(box[2] - box[0]) * (box[3] - box[1]) for box in boxes], dtype=torch.float32),
+            "iscrowd": torch.zeros((len(masks),), dtype=torch.int64)
         }
         return image, target
 
