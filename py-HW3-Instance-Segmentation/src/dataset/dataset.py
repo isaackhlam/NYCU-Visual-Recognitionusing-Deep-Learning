@@ -1,10 +1,13 @@
 import os
 import cv2
 import numpy as np
+import skimage.io as sio
+from skimage import measure
 import torch
 from torch.utils.data import Dataset, DataLoader
 import glob
 from typing import Dict, Tuple
+from .utils import encode_mask
 
 class MaskRCNNDataset(Dataset):
     def __init__(self, data_path: str, transform=None):
@@ -30,37 +33,44 @@ class MaskRCNNDataset(Dataset):
         instance_masks = []
         class_ids = []
         boxes = []
+        encoded_masks = []
 
         for mask_path in mask_paths:
             class_id = int(os.path.basename(mask_path).replace("class", "").replace(".tif", ""))
-            class_mask = cv2.imread(mask_path, cv2.IMREAD_GRAYSCALE)
-            _, binary_mask = cv2.threshold(class_mask, 127, 255, cv2.THRESH_BINARY)
-            binary_mask = binary_mask // 255  # Convert to 0 and 1
-            num_labels, labels = cv2.connectedComponents(binary_mask)
-            for label_id in range(1, num_labels):
-                instance_mask = (labels == label_id).astype(np.uint8)
-                if np.sum(instance_mask) < 10:  # Minimum area threshold
-                    continue
-                y_indices, x_indices = np.where(instance_mask)
-                if len(y_indices) > 0 and len(x_indices) > 0:
-                    x_min, x_max = np.min(x_indices), np.max(x_indices)
-                    y_min, y_max = np.min(y_indices), np.max(y_indices)
+            class_mask = sio.imread(mask_path)
 
-                    instance_masks.append(instance_mask)
-                    class_ids.append(class_id)
-                    boxes.append([x_min, y_min, x_max, y_max])
+            binary_mask = (class_mask > 0).astype(np.uint8)
+            labels = measure.label(binary_mask, connectivity=2)
+            regions = measure.regionprops(labels)
+
+            for region in regions:
+                if region.area < 10:
+                    continue
+
+                instance_mask = np.zeros_like(binary_mask)
+                instance_mask[labels == region.label] = 1
+
+                y_min, x_min, y_max, x_max = region.bbox
+
+                instance_masks.append(instance_mask)
+                class_ids.append(class_id)
+                boxes.append([x_min, y_min, x_max, y_max])
+
+                encoded_mask = encode_mask(instance_mask)
+                encoded_masks.append(encoded_mask)
 
         masks = np.array(instance_masks)
         boxes = np.array(boxes, dtype=np.float32)
         class_ids = np.array(class_ids)
 
         if self.transform:
-            transformed = self.transform(image=image, masks=masks)
-            image = transformed["image"]
-            masks = transformed["masks"]
+            image = self.transform(image)
+            masks = self.transform(masks)
 
-        image = torch.as_tensor(image, dtype=torch.float32).permute(2, 0, 1)  # [H, W, C] -> [C, H, W]
+        if not isinstance(image, torch.Tensor):
+            image = torch.as_tensor(image, dtype=torch.float32).permute(2, 0, 1)  # [H, W, C] -> [C, H, W]
 
+        # Prepare the target dict for Mask R-CNN
         target = {
             "boxes": torch.as_tensor(boxes, dtype=torch.float32),
             "labels": torch.as_tensor(class_ids, dtype=torch.int64),
@@ -70,6 +80,7 @@ class MaskRCNNDataset(Dataset):
             "iscrowd": torch.zeros((len(masks),), dtype=torch.int64)
         }
         return image, target
+
 
 def build_dataloader(args, dataset):
 
