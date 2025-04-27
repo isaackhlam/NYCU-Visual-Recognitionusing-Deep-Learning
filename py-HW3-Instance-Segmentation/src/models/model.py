@@ -2,11 +2,10 @@ from argparse import Namespace
 from logging import Logger
 
 from torch.nn import Module
-from torchvision.models.detection import (
-    MaskRCNN_ResNet50_FPN_Weights,
-    MaskRCNN_ResNet50_FPN_V2_Weights,
-    maskrcnn_resnet50_fpn,
-    maskrcnn_resnet50_fpn_v2)
+from torchvision.models.detection import (MaskRCNN_ResNet50_FPN_V2_Weights,
+                                          MaskRCNN_ResNet50_FPN_Weights,
+                                          maskrcnn_resnet50_fpn,
+                                          maskrcnn_resnet50_fpn_v2)
 from torchvision.models.detection.faster_rcnn import FastRCNNPredictor
 
 NUM_OF_CLASSES = 4 + 1  # 4 class + 1 background

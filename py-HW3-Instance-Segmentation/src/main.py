@@ -24,8 +24,8 @@ def main(args):
         train_transform,
     )
     # valid_data = MaskRCNNDataset(
-        # f"{args.data_path}/{args.valid_data_name}",
-        # valid_transform,
+    # f"{args.data_path}/{args.valid_data_name}",
+    # valid_transform,
     # )
     valid_data = train_data
     train_dataloader = build_dataloader(args, train_data)

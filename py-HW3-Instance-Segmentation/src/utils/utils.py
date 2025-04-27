@@ -1,9 +1,8 @@
-
 import gc
 
 import torch
 
-MAX_ALLOWED_MODEL_PARAMS = 200e6 # 200M limitation
+MAX_ALLOWED_MODEL_PARAMS = 200e6  # 200M limitation
 
 
 def check_model_size(logger, model):

@@ -127,4 +127,3 @@ def training_loop(
         )
 
     return max(best_valid_mAP, valid_mAP)
-

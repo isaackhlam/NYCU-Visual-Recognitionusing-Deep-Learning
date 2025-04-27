@@ -1,21 +1,27 @@
+import glob
 import os
+from typing import Dict, Tuple
+
 import cv2
 import numpy as np
 import skimage.io as sio
-from skimage import measure
 import torch
-from torch.utils.data import Dataset, DataLoader
-import glob
-from typing import Dict, Tuple
+from skimage import measure
+from torch.utils.data import DataLoader, Dataset
+
 from .utils import encode_mask
+
 
 class MaskRCNNDataset(Dataset):
     def __init__(self, data_path: str, transform=None):
         self.root_dir = data_path
         self.transform = transform
 
-        self.image_dirs = [d for d in os.listdir(self.root_dir)
-                          if os.path.isdir(os.path.join(self.root_dir, d))]
+        self.image_dirs = [
+            d
+            for d in os.listdir(self.root_dir)
+            if os.path.isdir(os.path.join(self.root_dir, d))
+        ]
 
     def __len__(self) -> int:
         return len(self.image_dirs)
@@ -36,7 +42,9 @@ class MaskRCNNDataset(Dataset):
         encoded_masks = []
 
         for mask_path in mask_paths:
-            class_id = int(os.path.basename(mask_path).replace("class", "").replace(".tif", ""))
+            class_id = int(
+                os.path.basename(mask_path).replace("class", "").replace(".tif", "")
+            )
             class_mask = sio.imread(mask_path)
 
             binary_mask = (class_mask > 0).astype(np.uint8)
@@ -68,7 +76,9 @@ class MaskRCNNDataset(Dataset):
             masks = self.transform(masks)
 
         if not isinstance(image, torch.Tensor):
-            image = torch.as_tensor(image, dtype=torch.float32).permute(2, 0, 1)  # [H, W, C] -> [C, H, W]
+            image = torch.as_tensor(image, dtype=torch.float32).permute(
+                2, 0, 1
+            )  # [H, W, C] -> [C, H, W]
 
         # Prepare the target dict for Mask R-CNN
         target = {
@@ -76,8 +86,11 @@ class MaskRCNNDataset(Dataset):
             "labels": torch.as_tensor(class_ids, dtype=torch.int64),
             "masks": torch.as_tensor(masks, dtype=torch.uint8),
             "image_id": torch.tensor([idx]),
-            "area": torch.as_tensor([(box[2] - box[0]) * (box[3] - box[1]) for box in boxes], dtype=torch.float32),
-            "iscrowd": torch.zeros((len(masks),), dtype=torch.int64)
+            "area": torch.as_tensor(
+                [(box[2] - box[0]) * (box[3] - box[1]) for box in boxes],
+                dtype=torch.float32,
+            ),
+            "iscrowd": torch.zeros((len(masks),), dtype=torch.int64),
         }
         return image, target
 

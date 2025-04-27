@@ -10,7 +10,7 @@ def decode_maskobj(mask_obj):
 def encode_mask(binary_mask):
     arr = np.asfortranarray(binary_mask).astype(np.uint8)
     rle = mask_utils.encode(arr)
-    rle['counts'] = rle['counts'].decode('utf-8')
+    rle["counts"] = rle["counts"].decode("utf-8")
     return rle
 
 
