@@ -1,4 +1,6 @@
 import gc
+import numpy as np
+import random
 
 import torch
 
@@ -28,3 +30,10 @@ def parse_model_name(args, logger):
 def cleanup_mem():
     gc.collect()
     torch.cuda.empty_cache()
+
+
+def set_seed(seed=42):
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)

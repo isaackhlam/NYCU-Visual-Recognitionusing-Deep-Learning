@@ -7,7 +7,8 @@ from train.train import save_model, training_loop
 from train.utils import build_optimizer
 from utils.logger import setup_logger
 from utils.parser import build_parser
-from utils.utils import check_model_size, parse_model_name
+from utils.utils import check_model_size, parse_model_name, set_seed
+from torch.utils.data import random_split
 
 
 def main(args):
@@ -81,4 +82,5 @@ def main(args):
 if __name__ == "__main__":
     parser = build_parser()
     args = parser.parse_args()
+    set_seed(args.seed)
     main(args)
