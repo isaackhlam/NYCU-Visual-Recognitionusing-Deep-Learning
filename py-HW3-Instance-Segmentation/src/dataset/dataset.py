@@ -1,7 +1,9 @@
 import glob
+import json
 import os
 from typing import Dict, Tuple
 from concurrent.futures import ProcessPoolExecutor
+from pathlib import Path
 
 import cv2
 import numpy as np
@@ -104,6 +106,30 @@ class MaskRCNNDataset(Dataset):
             "iscrowd": torch.zeros((len(masks),), dtype=torch.int64)
         }
         return image, target
+
+
+class MaskRCNNTestDataset(Dataset):
+    def __init__(self, data_path, metadata_path, transform=None):
+        self.root_dir = data_path
+        self.transform = transform
+
+        with open(metadata_path, 'r') as p:
+            self.metadata = json.load(p)
+
+
+
+    def __len__(self):
+        return len(self.metadata)
+
+    def __getitem__(self, idx):
+        image = Path(self.root_dir) / Path(self.metadata[idx]['file_name'])
+        image = cv2.imread(image)
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+
+        if self.transform:
+            image = self.transform(image)
+
+        return image, self.metadata[idx]["id"]
 
 
 def build_dataloader(args, dataset):
