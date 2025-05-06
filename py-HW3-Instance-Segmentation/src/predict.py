@@ -31,9 +31,6 @@ def convert_to_coco_format(preds, im_id, threshold=0.5):
         label = labels[i].item()
         mask = masks[i, 0]
 
-        # x1, y1, x2, y2 = box
-        # coco_box = [float(x1), float(y1), float(x2 - x1), float(y2 - y1)]
-
         bin_mask = mask.detach().cpu().numpy() > 0.5
         encoded_mask = coco_mask.encode(np.asfortranarray(bin_mask.astype(np.uint8)))
         encoded_mask['counts'] = encoded_mask['counts'].decode('utf-8')
@@ -80,11 +77,11 @@ def predict(args, logger):
                 result.extend(convert_to_coco_format(pred, i))
 
 
-    with open("pred.json", "w") as f:
+    with open("test-results.json", "w") as f:
         json.dump(result, f)
 
     with zipfile.ZipFile(f"./result/{model_name}.zip", "w") as f:
-        f.write("pred.json", arcname="pred.json")
+        f.write("test-results.json", arcname="test-results.json")
 
 
 if __name__ == "__main__":
