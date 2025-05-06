@@ -16,15 +16,18 @@ from .utils import encode_mask
 
 
 class MaskRCNNDataset(Dataset):
-    def __init__(self, data_path: str, transform=None):
+    def __init__(self, data_path: str, transform=None, image_dirs=None):
         self.root_dir = data_path
         self.transform = transform
 
-        self.image_dirs = [
-            d
-            for d in os.listdir(self.root_dir)
-            if os.path.isdir(os.path.join(self.root_dir, d))
-        ]
+        if image_dirs is None:
+            self.image_dirs = [
+                d
+                for d in os.listdir(self.root_dir)
+                if os.path.isdir(os.path.join(self.root_dir, d))
+            ]
+        else:
+            self.image_dirs = image_dirs
 
         with ProcessPoolExecutor(max_workers=8) as executor:
             self.precache = list(executor.map(self._load_and_process_data, self.image_dirs))
