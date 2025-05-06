@@ -130,7 +130,8 @@ class MaskRCNNTestDataset(Dataset):
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
         if self.transform:
-            image = self.transform(image)
+            image = self.transform(image=image)
+            image = image['image']
 
         return image, self.metadata[idx]["id"]
 

@@ -3,15 +3,14 @@ import zipfile
 
 import torch
 from dataset.dataset import MaskRCNNTestDataset, build_dataloader
-from dataset.transform import get_transform
+from dataset.transform import get_transform, get_albumentation_transform
 from models.model import build_model
-from sklearn.utils import resample
 from pycocotools import mask as coco_mask
 from tqdm import tqdm
 from utils.logger import setup_logger
 from utils.parser import build_parser
 import numpy as np
-from utils.utils import parse_model_name
+from utils.utils import parse_model_name, set_seed
 
 
 def convert_to_coco_format(preds, im_id, threshold=0.5):
@@ -55,7 +54,7 @@ def predict(args, logger):
     model = build_model(args, logger)
     checkpoint = torch.load(f"./weights/{model_name}_best.ckpt", weights_only=True)
     model.load_state_dict(checkpoint["model_state_dict"])
-    transform = get_transform(train=False)
+    transform = get_albumentation_transform(train=False)
     test_data = MaskRCNNTestDataset(
         f"{args.data_path}/{args.test_data_name}",
         f"{args.data_path}/{args.metadata_name}",
@@ -87,5 +86,6 @@ def predict(args, logger):
 if __name__ == "__main__":
     parser = build_parser()
     args = parser.parse_args()
+    set_seed(args.seed)
     logger = setup_logger()
     predict(args, logger)

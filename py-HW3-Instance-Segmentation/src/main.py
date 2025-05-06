@@ -47,7 +47,7 @@ def main(args):
                 "max_epoch": args.epochs,
                 "batch_size": args.batch_size,
                 "model_num_params": model_num_params,
-                "loss_function": args.loss_function,
+                # "loss_function": args.loss_function,
                 "optimizer": args.optimizer,
                 "model_save_path": args.model_save_path,
             },
