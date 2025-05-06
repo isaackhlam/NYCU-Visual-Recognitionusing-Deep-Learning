@@ -11,31 +11,18 @@ def get_transform(train):
 
 def get_albumentation_transform(train):
     if train:
-        transform = A.Compose(
-            [
-                # A.HorizontalFlip(p=0.5),
-                A.RandomBrightnessContrast(p=0.2),
-                A.ShiftScaleRotate(
-                    shift_limit=0.01, scale_limit=0.01, rotate_limit=15, p=0.5
-                ),
-                A.GaussianBlur(p=0.2),
-                A.Resize(512, 512),
-                A.Normalize(mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225)),
-                ToTensorV2(),
-            ],
-            bbox_params=A.BboxParams(
-                format="pascal_voc", label_fields=["category_ids"], clip=True
-            ),
-        )
+        return A.Compose([
+            A.HorizontalFlip(p=0.5),
+            A.VerticalFlip(p=0.5),
+            A.RandomRotate90(p=0.5),
+            A.ShiftScaleRotate(shift_limit=0.05, scale_limit=0.05, rotate_limit=15, p=0.5),
+            A.RandomBrightnessContrast(p=0.5),
+            A.GaussNoise(p=0.2),
+            A.Normalize(mean=(0.0, 0.0, 0.0), std=(1.0, 1.0, 1.0)),
+            ToTensorV2()
+        ])
     else:
-        transform = A.Compose(
-            [
-                A.Resize(512, 512),
-                A.Normalize(mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225)),
-                ToTensorV2(),
-            ],
-            bbox_params=A.BboxParams(
-                format="pascal_voc", label_fields=["category_ids"], clip=True
-            ),
-        )
-    return transform
+        return A.Compose([
+            A.Normalize(mean=(0.0, 0.0, 0.0), std=(1.0, 1.0, 1.0)),
+            ToTensorV2()
+        ])

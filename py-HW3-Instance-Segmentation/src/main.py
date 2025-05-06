@@ -17,16 +17,18 @@ def main(args):
     model_num_params = check_model_size(logger, model)
     parse_model_name(args, logger)
     optimizer = build_optimizer(args, logger, model)
-    train_transform = get_transform(train=True)
-    valid_transform = get_transform(train=False)
+    # train_transform = get_transform(train=True)
+    # valid_transform = get_transform(train=False)
+    train_transform = get_albumentation_transform(train=True)
+    valid_transform = get_albumentation_transform(train=False)
     train_data = MaskRCNNDataset(
         f"{args.data_path}/{args.train_data_name}",
         train_transform,
     )
-    # valid_data = MaskRCNNDataset(
-    # f"{args.data_path}/{args.valid_data_name}",
-    # valid_transform,
-    # )
+    valid_data = MaskRCNNDataset(
+        f"{args.data_path}/{args.train_data_name}",
+        valid_transform,
+    )
     valid_data = train_data
     train_dataloader = build_dataloader(args, train_data)
     valid_dataloader = build_dataloader(args, valid_data)

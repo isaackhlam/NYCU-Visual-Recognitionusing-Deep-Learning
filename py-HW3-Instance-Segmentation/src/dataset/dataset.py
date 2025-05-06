@@ -91,11 +91,11 @@ class MaskRCNNDataset(Dataset):
         class_ids = data["class_ids"].copy()
 
         if self.transform:
-            image = self.transform(image)
-            masks = self.transform(masks)
+            # image = self.transform(image)
+            transformed = self.transform(image=image, masks=[m for m in masks])
+            image = transformed['image']
+            masks = torch.stack([torch.as_tensor(m, dtype=torch.uint8) for m in transformed['masks']])
 
-        if not isinstance(image, torch.Tensor):
-            image = torch.as_tensor(image, dtype=torch.float32).permute(2, 0, 1)
 
         target = {
             "boxes": torch.as_tensor(boxes, dtype=torch.float32),
