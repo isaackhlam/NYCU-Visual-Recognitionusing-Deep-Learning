@@ -22,3 +22,9 @@ Please refer to [README](py-HW1-Image-Classification/README.md) of HW1.
 A Digit recognition task via fasterRCNN architecture
 
 Please refer to [README](py-HW2-Digit-Recognition/README.md) of HW2.
+
+## HW3
+
+A Instance Segmentation task via MaskRCNN architecture
+
+Please refer to [README](py-HW3-Instance-Segmentation/README.md) of HW3.
