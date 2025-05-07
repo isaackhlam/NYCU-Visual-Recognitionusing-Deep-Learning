@@ -3,12 +3,13 @@ import wandb
 from dataset.dataset import MaskRCNNDataset, build_dataloader
 from dataset.transform import get_albumentation_transform, get_transform
 from models.model import build_model
+from sklearn.model_selection import train_test_split
 from train.train import save_model, training_loop
 from train.utils import build_optimizer
 from utils.logger import setup_logger
 from utils.parser import build_parser
 from utils.utils import check_model_size, parse_model_name, set_seed
-from sklearn.model_selection import train_test_split
+
 
 def main(args):
     mp.set_start_method("spawn", force=True)
@@ -24,14 +25,18 @@ def main(args):
     full_data = MaskRCNNDataset(
         f"{args.data_path}/{args.train_data_name}",
     )
-    train_dirs, val_dirs = train_test_split(full_data.image_dirs, train_size=0.8, random_state=args.seed)
+    train_dirs, val_dirs = train_test_split(
+        full_data.image_dirs, train_size=0.8, random_state=args.seed
+    )
     train_data = MaskRCNNDataset(
-            f"{args.data_path}/{args.train_data_name}",
-            transform=train_transform, image_dirs=train_dirs
+        f"{args.data_path}/{args.train_data_name}",
+        transform=train_transform,
+        image_dirs=train_dirs,
     )
     valid_data = MaskRCNNDataset(
-            f"{args.data_path}/{args.train_data_name}",
-            transform=valid_transform, image_dirs=val_dirs
+        f"{args.data_path}/{args.train_data_name}",
+        transform=valid_transform,
+        image_dirs=val_dirs,
     )
 
     train_dataloader = build_dataloader(args, train_data)

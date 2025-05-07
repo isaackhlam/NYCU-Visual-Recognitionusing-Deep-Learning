@@ -22,7 +22,9 @@ def build_parser():
     parser.add_argument("--train_data_name", default="train", type=str)
     parser.add_argument("--valid_data_name", default="valid", type=str)
     parser.add_argument("--test_data_name", default="test_release", type=str)
-    parser.add_argument("--metadata_name", default="test_image_name_to_ids.json", type=str)
+    parser.add_argument(
+        "--metadata_name", default="test_image_name_to_ids.json", type=str
+    )
     parser.add_argument("--gradient_clipping", default=None, type=float)
     parser.add_argument("--freeze_layer", default=None, type=str)
     parser.add_argument("--enable_wandb", default=False, type=bool)

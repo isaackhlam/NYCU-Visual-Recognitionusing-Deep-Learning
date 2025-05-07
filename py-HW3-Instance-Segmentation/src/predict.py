@@ -1,25 +1,25 @@
 import json
 import zipfile
 
+import numpy as np
 import torch
 from dataset.dataset import MaskRCNNTestDataset, build_dataloader
-from dataset.transform import get_transform, get_albumentation_transform
+from dataset.transform import get_albumentation_transform, get_transform
 from models.model import build_model
 from pycocotools import mask as coco_mask
 from tqdm import tqdm
 from utils.logger import setup_logger
 from utils.parser import build_parser
-import numpy as np
 from utils.utils import parse_model_name, set_seed
 
 
 def convert_to_coco_format(preds, im_id, threshold=0.5):
     results = []
 
-    boxes = preds['boxes']
-    scores = preds['scores']
-    labels = preds['labels']
-    masks = preds['masks']
+    boxes = preds["boxes"]
+    scores = preds["scores"]
+    labels = preds["labels"]
+    masks = preds["masks"]
 
     for i in range(len(scores)):
         if scores[i] < threshold:
@@ -32,17 +32,14 @@ def convert_to_coco_format(preds, im_id, threshold=0.5):
 
         bin_mask = mask.detach().cpu().numpy() > 0.5
         encoded_mask = coco_mask.encode(np.asfortranarray(bin_mask.astype(np.uint8)))
-        encoded_mask['counts'] = encoded_mask['counts'].decode('utf-8')
+        encoded_mask["counts"] = encoded_mask["counts"].decode("utf-8")
 
         result = {
-            'image_id': int(im_id),
-            'category_id': int(label),
-            'bbox': box.tolist(),
-            'score': float(score),
-            'segmentation': {
-                'size': bin_mask.shape,
-                'counts': encoded_mask['counts']
-            }
+            "image_id": int(im_id),
+            "category_id": int(label),
+            "bbox": box.tolist(),
+            "score": float(score),
+            "segmentation": {"size": bin_mask.shape, "counts": encoded_mask["counts"]},
         }
         results.append(result)
 
@@ -58,7 +55,7 @@ def predict(args, logger):
     test_data = MaskRCNNTestDataset(
         f"{args.data_path}/{args.test_data_name}",
         f"{args.data_path}/{args.metadata_name}",
-        transform
+        transform,
     )
     args.shuffle_data = False
     test_dataloader = build_dataloader(args, test_data)
@@ -74,7 +71,6 @@ def predict(args, logger):
 
             for pred, i in zip(preds, im_ids):
                 result.extend(convert_to_coco_format(pred, i))
-
 
     with open("test-results.json", "w") as f:
         json.dump(result, f)
