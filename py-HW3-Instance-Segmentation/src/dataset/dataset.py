@@ -1,9 +1,9 @@
 import glob
 import json
 import os
-from typing import Dict, Tuple
 from concurrent.futures import ProcessPoolExecutor
 from pathlib import Path
+from typing import Dict, Tuple
 
 import cv2
 import numpy as np
@@ -30,7 +30,9 @@ class MaskRCNNDataset(Dataset):
             self.image_dirs = image_dirs
 
         with ProcessPoolExecutor(max_workers=8) as executor:
-            self.precache = list(executor.map(self._load_and_process_data, self.image_dirs))
+            self.precache = list(
+                executor.map(self._load_and_process_data, self.image_dirs)
+            )
 
     def _load_and_process_data(self, name):
         path = os.path.join(self.root_dir, name)
@@ -46,7 +48,9 @@ class MaskRCNNDataset(Dataset):
         encoded_masks = []
 
         for mask_path in mask_paths:
-            class_id = int(os.path.basename(mask_path).replace("class", "").replace(".tif", ""))
+            class_id = int(
+                os.path.basename(mask_path).replace("class", "").replace(".tif", "")
+            )
 
             class_mask = sio.imread(mask_path)
             binary_mask = (class_mask > 0).astype(np.uint8)
@@ -79,7 +83,7 @@ class MaskRCNNDataset(Dataset):
             "masks": masks,
             "boxes": boxes,
             "class_ids": class_ids,
-            "encoded_masks": encoded_masks
+            "encoded_masks": encoded_masks,
         }
 
     def __len__(self) -> int:
@@ -96,17 +100,21 @@ class MaskRCNNDataset(Dataset):
         if self.transform:
             # image = self.transform(image)
             transformed = self.transform(image=image, masks=[m for m in masks])
-            image = transformed['image']
-            masks = torch.stack([torch.as_tensor(m, dtype=torch.uint8) for m in transformed['masks']])
-
+            image = transformed["image"]
+            masks = torch.stack(
+                [torch.as_tensor(m, dtype=torch.uint8) for m in transformed["masks"]]
+            )
 
         target = {
             "boxes": torch.as_tensor(boxes, dtype=torch.float32),
             "labels": torch.as_tensor(class_ids, dtype=torch.int64),
             "masks": torch.as_tensor(masks, dtype=torch.uint8),
             "image_id": torch.tensor([idx]),
-            "area": torch.as_tensor([(box[2] - box[0]) * (box[3] - box[1]) for box in boxes], dtype=torch.float32),
-            "iscrowd": torch.zeros((len(masks),), dtype=torch.int64)
+            "area": torch.as_tensor(
+                [(box[2] - box[0]) * (box[3] - box[1]) for box in boxes],
+                dtype=torch.float32,
+            ),
+            "iscrowd": torch.zeros((len(masks),), dtype=torch.int64),
         }
         return image, target
 
@@ -116,22 +124,20 @@ class MaskRCNNTestDataset(Dataset):
         self.root_dir = data_path
         self.transform = transform
 
-        with open(metadata_path, 'r') as p:
+        with open(metadata_path, "r") as p:
             self.metadata = json.load(p)
-
-
 
     def __len__(self):
         return len(self.metadata)
 
     def __getitem__(self, idx):
-        image = Path(self.root_dir) / Path(self.metadata[idx]['file_name'])
+        image = Path(self.root_dir) / Path(self.metadata[idx]["file_name"])
         image = cv2.imread(image)
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
         if self.transform:
             image = self.transform(image=image)
-            image = image['image']
+            image = image["image"]
 
         return image, self.metadata[idx]["id"]
 

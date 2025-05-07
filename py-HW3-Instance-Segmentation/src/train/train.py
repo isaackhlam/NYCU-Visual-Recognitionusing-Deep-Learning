@@ -3,6 +3,7 @@ import wandb
 from torchvision.ops import box_iou
 from tqdm import tqdm
 
+
 def evaluate(args, model, dataloader, epoch):
     model.eval()
     total_precision = 0.0
@@ -40,13 +41,19 @@ def evaluate(args, model, dataloader, epoch):
                 total_precision += precision
                 total_samples += 1
 
-                del gt_boxes, gt_labels, pred_boxes, pred_scores, pred_labels, iou, matches
+                del (
+                    gt_boxes,
+                    gt_labels,
+                    pred_boxes,
+                    pred_scores,
+                    pred_labels,
+                    iou,
+                    matches,
+                )
             del images, targets, predictions
             torch.cuda.empty_cache()
     mAP = total_precision / total_samples if total_samples > 0 else 0
     return mAP
-
-
 
 
 def save_model(args, epoch, model, optimizer, save_path):
