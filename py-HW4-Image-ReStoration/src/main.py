@@ -4,6 +4,7 @@ from dataset.transform import get_basic_transform
 from utils.logger import setup_logger
 from utils.parser import build_parser
 from utils.utils import parse_model_name, set_seed
+from model.promptIR import build_model
 from tqdm import tqdm
 
 
@@ -13,9 +14,11 @@ def main(args):
     train_transform = get_basic_transform()
     data = ImageDataset(args, train_transform)
     dataloader = build_dataloader(args, data)
+    model = build_model()
 
     for batch in tqdm(dataloader):
-        pass
+        x, y = batch
+        model(x)
 
 
 if __name__ == "__main__":
