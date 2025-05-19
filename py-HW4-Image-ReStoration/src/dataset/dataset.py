@@ -36,8 +36,9 @@ class ImageDataset(Dataset):
         y = cv2.cvtColor(y, cv2.COLOR_BGR2RGB)
 
         if self.transform:
-            x = self.transform(image=x)["image"]
-            y = self.transform(image=y)["image"]
+            transformed = self.transform(image=x, label=y)
+            x = transformed["image"]
+            y = transformed["label"]
 
         return x, y
 
