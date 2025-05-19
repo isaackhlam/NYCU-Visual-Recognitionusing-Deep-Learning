@@ -5,12 +5,15 @@ from torch.utils.data import DataLoader, Dataset
 
 
 class ImageDataset(Dataset):
-    def __init__(self, args, transform):
+    def __init__(self, args, transform, file_list):
         self.transform = transform
         self.input_dir = args.input_dir
         self.label_dir = args.label_dir
 
-        filenames = [f.name for f in Path(self.input_dir).iterdir()]
+        if file_list is not None:
+            filenames = file_list
+        else:
+            filenames = [f.name for f in Path(self.input_dir).iterdir()]
         self.data = []
 
         for f in filenames:
