@@ -1,4 +1,7 @@
+import heapq
+
 import torch
+import torchvision.utils as vutils
 import wandb
 from tqdm import tqdm
 
@@ -110,6 +113,7 @@ def valid(args, logger, epoch, model, criterion, dataloader):
     losses = AverageMeter()
     psnr_meter = AverageMeter()
     ssim_meter = AverageMeter()
+    worst_psnr_samples = []
 
     p_bar = tqdm(dataloader, desc=f"Epoch {epoch+1}/{args.epochs}")
     with torch.no_grad():
@@ -125,6 +129,23 @@ def valid(args, logger, epoch, model, criterion, dataloader):
             losses.update(loss.item(), x.size(0))
             psnr_meter.update(psnr.item(), x.size(0))
             ssim_meter.update(ssim.item(), x.size(0))
+
+            for i in range(x.size(0)):
+                psnr_val = calculate_psnr(output[i : i + 1], y[i : i + 1]).item()
+                heapq.heappush(
+                    worst_psnr_samples,
+                    (
+                        psnr_val,
+                        {
+                            "input": x[i].cpu(),
+                            "output": output[i].cpu(),
+                            "target": y[i].cpu(),
+                        },
+                    ),
+                )
+                if len(worst_psnr_samples) > 10:
+                    heapq._heapify_max(worst_psnr_samples)
+                    heapq.heappop(worst_psnr_samples)
 
             p_bar.set_postfix(
                 {
@@ -142,5 +163,18 @@ def valid(args, logger, epoch, model, criterion, dataloader):
                 "epoch_valid_ssim": ssim_meter.avg,
             }
         )
+
+        worst_psnr_samples.sort(key=lambda x: x[0])
+        for idx, (psnr_val, sample) in enumerate(worst_psnr_samples):
+            vis_image = torch.cat(
+                [sample["input"], sample["output"], sample["target"]], dim=2
+            )
+            wandb.log(
+                {
+                    f"worst_psnr_sample_{idx+1}": [
+                        wandb.Image(vis_image, caption=f"PSNR: {psnr_val:.2f}")
+                    ]
+                }
+            )
 
     return psnr_meter.avg
