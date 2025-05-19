@@ -2,6 +2,7 @@ import torch
 import wandb
 from tqdm import tqdm
 
+
 class AverageMeter:
     def __init__(self):
         self.reset()
@@ -18,6 +19,7 @@ class AverageMeter:
         self.cnt += n
         self.avg = self.sum / self.cnt
 
+
 def calculate_psnr(img1, img2):
     mse = torch.mean((img1 - img2) ** 2)
     if mse == 0:
@@ -26,9 +28,10 @@ def calculate_psnr(img1, img2):
     psnr = 20 * torch.log10(max_pixel / torch.sqrt(mse))
     return psnr
 
+
 def calculate_ssim(img1, img2):
-    C1 = 0.01 ** 2
-    C2 = 0.03 ** 2
+    C1 = 0.01**2
+    C2 = 0.03**2
 
     img1 = img1.reshape(img1.shape[0], -1)
     img2 = img2.reshape(img2.shape[0], -1)
@@ -41,7 +44,7 @@ def calculate_ssim(img1, img2):
     sigma12 = torch.mean((img1 - mu1) * (img2 - mu2), dim=1, keepdim=True)
 
     ssim_num = (2 * mu1 * mu2 + C1) * (2 * sigma12 + C2)
-    ssim_den = (mu1 ** 2 + mu2 ** 2 + C1) * (sigma1_sq + sigma2_sq + C2)
+    ssim_den = (mu1**2 + mu2**2 + C1) * (sigma1_sq + sigma2_sq + C2)
     ssim = torch.mean(ssim_num / ssim_den)
 
     return ssim
@@ -74,25 +77,32 @@ def train(args, logger, epoch, model, optimizer, criterion, dataloader):
             torch.nn.utils.clip_grad_norm_(model.parameters(), args.gradient_clipping)
         optimizer.step()
 
-        p_bar.set_postfix({
-            "loss": f"{losses.val:.4f} ({losses.avg:.4f})",
-            "psnr": f"{psnr_meter.val:.4f} ({psnr_meter.avg:.4f})",
-            "ssim": f"{ssim_meter.val:.4f} ({ssim_meter.avg:.4f})",
-        })
+        p_bar.set_postfix(
+            {
+                "loss": f"{losses.val:.4f} ({losses.avg:.4f})",
+                "psnr": f"{psnr_meter.val:.4f} ({psnr_meter.avg:.4f})",
+                "ssim": f"{ssim_meter.val:.4f} ({ssim_meter.avg:.4f})",
+            }
+        )
 
         if args.enable_wandb:
-            wandb.log({
-                "step_train_loss": losses.val,
-                "step_train_psnr": psnr_meter.val,
-                "step_train_ssim": ssim_meter.val,
-            })
+            wandb.log(
+                {
+                    "step_train_loss": losses.val,
+                    "step_train_psnr": psnr_meter.val,
+                    "step_train_ssim": ssim_meter.val,
+                }
+            )
 
     if args.enable_wandb:
-        wandb.log({
-            "epoch_train_loss": losses.avg,
-            "epoch_train_psnr": psnr_meter.avg,
-            "epoch_train_ssim": ssim_meter.avg,
-        })
+        wandb.log(
+            {
+                "epoch_train_loss": losses.avg,
+                "epoch_train_psnr": psnr_meter.avg,
+                "epoch_train_ssim": ssim_meter.avg,
+            }
+        )
+
 
 def valid(args, logger, epoch, model, criterion, dataloader):
     model.eval()
@@ -116,18 +126,21 @@ def valid(args, logger, epoch, model, criterion, dataloader):
             psnr_meter.update(psnr.item(), x.size(0))
             ssim_meter.update(ssim.item(), x.size(0))
 
-            p_bar.set_postfix({
-                "loss": f"{losses.val:.4f} ({losses.avg:.4f})",
-                "psnr": f"{psnr_meter.val:.4f} ({psnr_meter.val:.4f})",
-                "ssim": f"{ssim_meter.val:.4f} ({ssim_meter.avg:.4f})",
-            })
+            p_bar.set_postfix(
+                {
+                    "loss": f"{losses.val:.4f} ({losses.avg:.4f})",
+                    "psnr": f"{psnr_meter.val:.4f} ({psnr_meter.avg:.4f})",
+                    "ssim": f"{ssim_meter.val:.4f} ({ssim_meter.avg:.4f})",
+                }
+            )
 
     if args.enable_wandb:
-        wandb.log({
-            "epoch_valid_loss": losses.avg,
-            "epoch_valid_psnr": psnr_meter.avg,
-            "epoch_valid_ssim": ssim_meter.avg,
-        })
+        wandb.log(
+            {
+                "epoch_valid_loss": losses.avg,
+                "epoch_valid_psnr": psnr_meter.avg,
+                "epoch_valid_ssim": ssim_meter.avg,
+            }
+        )
 
     return psnr_meter.avg
-

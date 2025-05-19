@@ -3,7 +3,6 @@ import torch.nn as nn
 import torch.optim as optim
 
 
-
 def build_criterion(args, logger):
     criterion = None
     if args.loss_function == "CrossEntropy":

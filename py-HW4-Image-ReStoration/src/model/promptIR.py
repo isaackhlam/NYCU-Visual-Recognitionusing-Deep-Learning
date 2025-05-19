@@ -1,7 +1,8 @@
+import math
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import math
 
 
 class PositionalEncoding(nn.Module):
@@ -11,17 +12,20 @@ class PositionalEncoding(nn.Module):
 
         pe = torch.zeros(max_len, d_model)
         position = torch.arange(0, max_len, dtype=torch.float).unsqueeze(1)
-        div_term = torch.exp(torch.arange(0, d_model, 2).float() * (-math.log(10000.0) / d_model))
+        div_term = torch.exp(
+            torch.arange(0, d_model, 2).float() * (-math.log(10000.0) / d_model)
+        )
 
         pe[:, 0::2] = torch.sin(position * div_term)
         pe[:, 1::2] = torch.cos(position * div_term)
         pe = pe.unsqueeze(0).transpose(0, 1)
 
-        self.register_buffer('pe', pe)
+        self.register_buffer("pe", pe)
 
     def forward(self, x):
-        x = x + self.pe[:x.size(0), :]
+        x = x + self.pe[: x.size(0), :]
         return self.dropout(x)
+
 
 class MultiHeadAttention(nn.Module):
     def __init__(self, embed_dim, num_heads, dropout=0.1):
@@ -29,7 +33,9 @@ class MultiHeadAttention(nn.Module):
         self.embed_dim = embed_dim
         self.num_heads = num_heads
         self.head_dim = embed_dim // num_heads
-        assert self.head_dim * num_heads == embed_dim, "embed_dim must be divisible by num_heads"
+        assert (
+            self.head_dim * num_heads == embed_dim
+        ), "embed_dim must be divisible by num_heads"
 
         self.q_proj = nn.Linear(embed_dim, embed_dim)
         self.k_proj = nn.Linear(embed_dim, embed_dim)
@@ -40,9 +46,21 @@ class MultiHeadAttention(nn.Module):
     def forward(self, query, key, value, attn_mask=None):
         batch_size = query.size(0)
         # Linear projections and reshape
-        q = self.q_proj(query).view(batch_size, -1, self.num_heads, self.head_dim).transpose(1, 2)
-        k = self.k_proj(key).view(batch_size, -1, self.num_heads, self.head_dim).transpose(1, 2)
-        v = self.v_proj(value).view(batch_size, -1, self.num_heads, self.head_dim).transpose(1, 2)
+        q = (
+            self.q_proj(query)
+            .view(batch_size, -1, self.num_heads, self.head_dim)
+            .transpose(1, 2)
+        )
+        k = (
+            self.k_proj(key)
+            .view(batch_size, -1, self.num_heads, self.head_dim)
+            .transpose(1, 2)
+        )
+        v = (
+            self.v_proj(value)
+            .view(batch_size, -1, self.num_heads, self.head_dim)
+            .transpose(1, 2)
+        )
         # Scaled dot-product attention
         scores = torch.matmul(q, k.transpose(-2, -1)) / math.sqrt(self.head_dim)
 
@@ -54,10 +72,13 @@ class MultiHeadAttention(nn.Module):
 
         context = torch.matmul(attn_weights, v)
         # Reshape and linear projection
-        context = context.transpose(1, 2).contiguous().view(batch_size, -1, self.embed_dim)
+        context = (
+            context.transpose(1, 2).contiguous().view(batch_size, -1, self.embed_dim)
+        )
         output = self.out_proj(context)
 
         return output
+
 
 class FeedForward(nn.Module):
     def __init__(self, embed_dim, ff_dim, dropout=0.1):
@@ -70,6 +91,7 @@ class FeedForward(nn.Module):
         x = self.dropout(F.gelu(self.linear1(x)))
         x = self.linear2(x)
         return x
+
 
 class TransformerBlock(nn.Module):
     def __init__(self, embed_dim, num_heads, ff_dim, dropout=0.1):
@@ -92,6 +114,7 @@ class TransformerBlock(nn.Module):
 
         return x
 
+
 class PromptEncoder(nn.Module):
     def __init__(self, prompt_dim, num_prompts):
         super(PromptEncoder, self).__init__()
@@ -101,6 +124,7 @@ class PromptEncoder(nn.Module):
     def forward(self, batch_size):
         # Return prompt embeddings repeated for each batch
         return self.prompt_embeddings.unsqueeze(0).repeat(batch_size, 1, 1)
+
 
 class ImageEncoder(nn.Module):
     def __init__(self, in_channels, embed_dim, patch_size=16):
@@ -133,11 +157,14 @@ class ImageEncoder(nn.Module):
 
         return x
 
+
 class ImageDecoder(nn.Module):
     def __init__(self, embed_dim, out_channels):
         super(ImageDecoder, self).__init__()
         # Upsampling layers
-        self.upsample = nn.Upsample(scale_factor=2, mode='bilinear', align_corners=False)
+        self.upsample = nn.Upsample(
+            scale_factor=2, mode="bilinear", align_corners=False
+        )
         # Convolutional layers
         self.conv1 = nn.Conv2d(embed_dim, 256, kernel_size=3, padding=1)
         self.conv2 = nn.Conv2d(256, 128, kernel_size=3, padding=1)
@@ -165,16 +192,19 @@ class ImageDecoder(nn.Module):
 
         return x
 
+
 class PromptIR(nn.Module):
-    def __init__(self,
-                 in_channels=3,
-                 out_channels=3,
-                 embed_dim=512,
-                 num_heads=8,
-                 num_transformer_layers=6,
-                 ff_dim=2048,
-                 num_prompts=10,
-                 dropout=0.1):
+    def __init__(
+        self,
+        in_channels=3,
+        out_channels=3,
+        embed_dim=512,
+        num_heads=8,
+        num_transformer_layers=6,
+        ff_dim=2048,
+        num_prompts=10,
+        dropout=0.1,
+    ):
         super(PromptIR, self).__init__()
 
         # Image encoder
@@ -184,10 +214,12 @@ class PromptIR(nn.Module):
         # Positional encoding
         self.pos_encoder = PositionalEncoding(embed_dim, dropout)
         # Transformer blocks
-        self.transformer_blocks = nn.ModuleList([
-            TransformerBlock(embed_dim, num_heads, ff_dim, dropout)
-            for _ in range(num_transformer_layers)
-        ])
+        self.transformer_blocks = nn.ModuleList(
+            [
+                TransformerBlock(embed_dim, num_heads, ff_dim, dropout)
+                for _ in range(num_transformer_layers)
+            ]
+        )
         # Image decoder
         self.decoder = ImageDecoder(embed_dim, out_channels)
 
@@ -206,29 +238,30 @@ class PromptIR(nn.Module):
         for transformer_block in self.transformer_blocks:
             features = transformer_block(features)
         # Separate prompt embeddings and image features
-        image_features = features[:, prompt_embeddings.size(1):, :]
+        image_features = features[:, prompt_embeddings.size(1) :, :]
         # Decode to restored image
         output = self.decoder(image_features, input_size)
         return output
 
+
 def build_model(args):
     config = {
-        'in_channels': args.in_channels,
-        'out_channels': args.out_channels,
-        'embed_dim': args.embed_dim,
-        'num_heads': args.num_heads,
-        'num_transformer_layers': args.num_transformer_layers,
-        'ff_dim': args.ff_dim,
-        'num_prompts': args.num_prompts,
-        'dropout': args.dropout
+        "in_channels": args.in_channels,
+        "out_channels": args.out_channels,
+        "embed_dim": args.embed_dim,
+        "num_heads": args.num_heads,
+        "num_transformer_layers": args.num_transformer_layers,
+        "ff_dim": args.ff_dim,
+        "num_prompts": args.num_prompts,
+        "dropout": args.dropout,
     }
     return PromptIR(
-        in_channels=config.get('in_channels', 3),
-        out_channels=config.get('out_channels', 3),
-        embed_dim=config.get('embed_dim', 512),
-        num_heads=config.get('num_heads', 8),
-        num_transformer_layers=config.get('num_transformer_layers', 6),
-        ff_dim=config.get('ff_dim', 2048),
-        num_prompts=config.get('num_prompts', 10),
-        dropout=config.get('dropout', 0.1)
+        in_channels=config.get("in_channels", 3),
+        out_channels=config.get("out_channels", 3),
+        embed_dim=config.get("embed_dim", 512),
+        num_heads=config.get("num_heads", 8),
+        num_transformer_layers=config.get("num_transformer_layers", 6),
+        ff_dim=config.get("ff_dim", 2048),
+        num_prompts=config.get("num_prompts", 10),
+        dropout=config.get("dropout", 0.1),
     )

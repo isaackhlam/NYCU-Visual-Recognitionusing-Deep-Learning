@@ -28,7 +28,9 @@ def build_parser():
     parser.add_argument("--enable_wandb", default=False, type=bool)
     parser.add_argument("--transform", default="", type=str)
 
-    model_args = parser.add_argument_group("model argument", "Model config for PromptIR")
+    model_args = parser.add_argument_group(
+        "model argument", "Model config for PromptIR"
+    )
     model_args.add_argument("--in_channels", default=3, type=int)
     model_args.add_argument("--out_channels", default=3, type=int)
     model_args.add_argument("--embed_dim", default=512, type=int)

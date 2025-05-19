@@ -17,8 +17,8 @@ class ImageDataset(Dataset):
         self.data = []
 
         for f in filenames:
-            y = f.split('-')
-            if len(y) == 2: # sanity check for stupid .DS_store
+            y = f.split("-")
+            if len(y) == 2:  # sanity check for stupid .DS_store
                 y = f"{y[0]}_clean-{y[1]}"
                 self.data.append((f, y))
 
@@ -40,6 +40,7 @@ class ImageDataset(Dataset):
             y = self.transform(image=y)["image"]
 
         return x, y
+
 
 class ImageTestDataset(Dataset):
     def __init__(self, args, transform):

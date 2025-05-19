@@ -1,14 +1,15 @@
-import wandb
 from pathlib import Path
+
+import wandb
 from dataset.dataset import ImageDataset, build_dataloader
 from dataset.transform import get_basic_transform
+from model.promptIR import build_model
+from sklearn.model_selection import train_test_split
+from train.train import train, valid
+from train.utils import build_criterion, build_optimizer, save_model
 from utils.logger import setup_logger
 from utils.parser import build_parser
 from utils.utils import check_model_size, parse_model_name, set_seed
-from model.promptIR import build_model
-from train.train import train, valid
-from train.utils import build_criterion, build_optimizer, save_model
-from sklearn.model_selection import train_test_split
 
 
 def main(args):
@@ -19,7 +20,9 @@ def main(args):
     valid_transform = get_basic_transform()
 
     all_data = [f.name for f in Path(args.input_dir).iterdir()]
-    train_data, valid_data = train_test_split(all_data, test_size=args.valid_ratio, random_state=args.seed)
+    train_data, valid_data = train_test_split(
+        all_data, test_size=args.valid_ratio, random_state=args.seed
+    )
     train_data = ImageDataset(args, train_transform, file_list=train_data)
     valid_data = ImageDataset(args, valid_transform, file_list=valid_data)
     train_dataloader = build_dataloader(args, train_data)
@@ -57,7 +60,9 @@ def main(args):
             stale = 0
             save_path = f"{args.model_save_path}_best.ckpt"
             save_model(args, epoch, model, optimizer, save_path)
-            logger.info(f"Saved best model with validation PSNR: {best_valid_psnr:.4f} on epoch {epoch + 1}")
+            logger.info(
+                f"Saved best model with validation PSNR: {best_valid_psnr:.4f} on epoch {epoch + 1}"
+            )
             continue
 
         if stale > args.patient:
@@ -77,7 +82,6 @@ def main(args):
     save_model(args, epoch, model, optimizer, f"{args.model_save_path}_final.ckpt")
     if args.enable_wandb:
         wandb.finish()
-
 
 
 if __name__ == "__main__":
