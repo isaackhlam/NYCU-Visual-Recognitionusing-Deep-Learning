@@ -94,4 +94,40 @@ def train(args, logger, epoch, model, optimizer, criterion, dataloader):
             "epoch_train_ssim": ssim_meter.avg,
         })
 
+def valid(args, logger, epoch, model, criterion, dataloader):
+    model.eval()
+    model.to(args.device)
+    losses = AverageMeter()
+    psnr_meter = AverageMeter()
+    ssim_meter = AverageMeter()
+
+    p_bar = tqdm(dataloader, desc=f"Epoch {epoch+1}/{args.epochs}")
+    with torch.no_grad():
+        for batch in p_bar:
+            x, y = batch
+            x, y = x.to(args.device), y.to(args.device)
+
+            output = model(x)
+            loss = criterion(output, y)
+            psnr = calculate_psnr(output, y)
+            ssim = calculate_ssim(output, y)
+
+            losses.update(loss.item(), x.size(0))
+            psnr_meter.update(psnr.item(), x.size(0))
+            ssim_meter.update(ssim.item(), x.size(0))
+
+            p_bar.set_postfix({
+                "loss": f"{losses.val:.4f} ({losses.avg:.4f})",
+                "psnr": f"{psnr_meter.val:.4f} ({psnr_meter.val:.4f})",
+                "ssim": f"{ssim_meter.val:.4f} ({ssim_meter.avg:.4f})",
+            })
+
+    if args.enable_wandb:
+        wandb.log({
+            "epoch_valid_loss": losses.avg,
+            "epoch_valid_psnr": psnr_meter.avg,
+            "epoch_valid_ssim": ssim_meter.avg,
+        })
+
+    return psnr_meter.avg
 

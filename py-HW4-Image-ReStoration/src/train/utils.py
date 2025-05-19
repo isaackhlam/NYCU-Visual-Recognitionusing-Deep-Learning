@@ -34,3 +34,16 @@ def build_optimizer(args, logger, model):
 
     logger.info(f"Using Optimizer: {args.optimizer}")
     return optimizer
+
+
+def save_model(args, epoch, model, optimizer, save_path):
+    model.to("cpu")
+    torch.save(
+        {
+            "epoch": epoch,
+            "model_state_dict": model.state_dict(),
+            "optimizer_state_dict": optimizer.state_dict(),
+        },
+        save_path,
+    )
+    model.to(args.device)
