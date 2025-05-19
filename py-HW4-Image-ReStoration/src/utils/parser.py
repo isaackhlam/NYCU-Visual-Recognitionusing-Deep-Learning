@@ -27,4 +27,14 @@ def build_parser():
     parser.add_argument("--freeze_layer", default=None, type=str)
     parser.add_argument("--enable_wandb", default=False, type=bool)
     parser.add_argument("--transform", default="", type=str)
+
+    model_args = parser.add_argument_group("model argument", "Model config for PromptIR")
+    model_args.add_argument("--in_channels", default=3, type=int)
+    model_args.add_argument("--out_channels", default=3, type=int)
+    model_args.add_argument("--embed_dim", default=512, type=int)
+    model_args.add_argument("--num_heads", default=8, type=int)
+    model_args.add_argument("--num_transformer_layers", default=6, type=int)
+    model_args.add_argument("--ff_dim", default=2048, type=int)
+    model_args.add_argument("--num_prompts", default=2, type=int)
+    model_args.add_argument("--dropout", default=0.1, type=float)
     return parser

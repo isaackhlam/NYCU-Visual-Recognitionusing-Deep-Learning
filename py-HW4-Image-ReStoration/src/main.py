@@ -25,7 +25,7 @@ def main(args):
     train_dataloader = build_dataloader(args, train_data)
     valid_dataloader = build_dataloader(args, valid_data)
 
-    model = build_model()
+    model = build_model(args)
     criterion = build_criterion(args, logger)
     optimizer = build_optimizer(args, logger, model)
     model_num_params = check_model_size(logger, model)

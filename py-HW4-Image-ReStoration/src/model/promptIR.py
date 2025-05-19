@@ -211,18 +211,17 @@ class PromptIR(nn.Module):
         output = self.decoder(image_features, input_size)
         return output
 
-def build_model(config=None):
-    if config is None:
-        config = {
-            'in_channels': 3,
-            'out_channels': 3,
-            'embed_dim': 512,
-            'num_heads': 8,
-            'num_transformer_layers': 6,
-            'ff_dim': 2048,
-            'num_prompts': 10,
-            'dropout': 0.1
-        }
+def build_model(args):
+    config = {
+        'in_channels': args.in_channels,
+        'out_channels': args.out_channels,
+        'embed_dim': args.embed_dim,
+        'num_heads': args.num_heads,
+        'num_transformer_layers': args.num_transformer_layers,
+        'ff_dim': args.ff_dim,
+        'num_prompts': args.num_prompts,
+        'dropout': args.dropout
+    }
     return PromptIR(
         in_channels=config.get('in_channels', 3),
         out_channels=config.get('out_channels', 3),
