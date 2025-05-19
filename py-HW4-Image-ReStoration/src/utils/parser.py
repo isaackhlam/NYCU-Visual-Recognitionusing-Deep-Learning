@@ -9,6 +9,7 @@ def build_parser():
     parser.add_argument("--device", default="cpu", type=str)
     parser.add_argument("--patient", default=20, type=int)
     parser.add_argument("--epochs", default=100, type=int)
+    parser.add_argument("--loss_function", default="L1Loss")
     parser.add_argument("--optimizer", default="AdamW", type=str)
     parser.add_argument("--model", default="resnet50", type=str)
     parser.add_argument("--model_save_path", default="./weights", type=str)

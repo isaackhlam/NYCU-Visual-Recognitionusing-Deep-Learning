@@ -5,7 +5,8 @@ from utils.logger import setup_logger
 from utils.parser import build_parser
 from utils.utils import parse_model_name, set_seed
 from model.promptIR import build_model
-from tqdm import tqdm
+from train.train import train
+from train.utils import build_criterion, build_optimizer
 
 
 def main(args):
@@ -15,10 +16,12 @@ def main(args):
     data = ImageDataset(args, train_transform)
     dataloader = build_dataloader(args, data)
     model = build_model()
+    criterion = build_criterion(args, logger)
+    optimizer = build_optimizer(args, logger, model)
 
-    for batch in tqdm(dataloader):
-        x, y = batch
-        model(x)
+
+    for epoch in range(args.epochs):
+        train(args, logger, epoch, model, optimizer, criterion, dataloader)
 
 
 if __name__ == "__main__":
