@@ -4,7 +4,7 @@ import argparse
 def build_parser():
     parser = argparse.ArgumentParser()
     parser.add_argument("--seed", default=42, type=int)
-    parser.add_argument("--batch_size", default=64, type=int)
+    parser.add_argument("--batch_size", default=32, type=int)
     parser.add_argument("--lr", default=1e-5, type=float)
     parser.add_argument("--device", default="cpu", type=str)
     parser.add_argument("--patient", default=20, type=int)

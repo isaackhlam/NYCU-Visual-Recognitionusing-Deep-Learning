@@ -76,7 +76,7 @@ def train(args, logger, epoch, model, optimizer, criterion, dataloader):
 
         p_bar.set_postfix({
             "loss": f"{losses.val:.4f} ({losses.avg:.4f})",
-            "psnr": f"{psnr_meter.val:.4f} ({psnr_meter.val:.4f})",
+            "psnr": f"{psnr_meter.val:.4f} ({psnr_meter.avg:.4f})",
             "ssim": f"{ssim_meter.val:.4f} ({ssim_meter.avg:.4f})",
         })
 

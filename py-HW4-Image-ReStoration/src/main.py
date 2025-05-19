@@ -1,4 +1,5 @@
 import wandb
+from pathlib import Path
 from dataset.dataset import ImageDataset, build_dataloader
 from dataset.transform import get_basic_transform
 from utils.logger import setup_logger
@@ -31,7 +32,7 @@ def main(args):
 
     if args.enable_wandb:
         wandb.init(
-            project="VR-hw4"
+            project="VR-hw4",
             config={
                 "learning_rate": args.lr,
                 "model": args.model,
