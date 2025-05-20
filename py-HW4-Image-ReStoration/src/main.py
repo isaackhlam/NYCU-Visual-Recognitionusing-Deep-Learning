@@ -34,7 +34,13 @@ def main(args):
     criterion = build_criterion(args, logger)
     optimizer = build_optimizer(args, logger, model)
     # scheduler = optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=args.epochs)
-    scheduler = CosineWithWarmup(optimizer, 0.1 * args.epochs, args.epochs, args.lr)
+    # scheduler = CosineWithWarmup(optimizer, 0.1 * args.epochs, args.epochs, args.lr)
+    scheduler = optim.lr_scheduler.CosineAnnealingWarmRestarts(
+        optimizer,
+        T_0=int(0.1 * args.epochs),
+        T_mult=2,
+        eta_min=5e-7
+    )
     model_num_params = check_model_size(logger, model)
 
     if args.enable_wandb:
