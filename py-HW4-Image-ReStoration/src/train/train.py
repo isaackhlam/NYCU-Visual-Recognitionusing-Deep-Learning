@@ -130,12 +130,14 @@ def valid(args, logger, epoch, model, criterion, dataloader):
             psnr_meter.update(psnr.item(), x.size(0))
             ssim_meter.update(ssim.item(), x.size(0))
 
+            counter = 0
             for i in range(x.size(0)):
                 psnr_val = calculate_psnr(output[i : i + 1], y[i : i + 1]).item()
                 heapq.heappush(
                     worst_psnr_samples,
                     (
-                        psnr_val,
+                        -psnr_val,
+                        counter,
                         {
                             "input": x[i].cpu(),
                             "output": output[i].cpu(),
@@ -143,8 +145,8 @@ def valid(args, logger, epoch, model, criterion, dataloader):
                         },
                     ),
                 )
+                counter += 1
                 if len(worst_psnr_samples) > 10:
-                    heapq._heapify_max(worst_psnr_samples)
                     heapq.heappop(worst_psnr_samples)
 
             p_bar.set_postfix(
