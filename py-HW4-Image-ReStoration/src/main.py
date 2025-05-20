@@ -1,12 +1,13 @@
 from pathlib import Path
 
 import wandb
+from torch import optim
 from dataset.dataset import ImageDataset, build_dataloader
 from dataset.transform import get_basic_transform, get_degraded_transform
 from model.promptIR import build_model
 from sklearn.model_selection import train_test_split
 from train.train import train, valid
-from train.utils import build_criterion, build_optimizer, save_model
+from train.utils import build_criterion, build_optimizer, save_model, CosineWithWarmup
 from utils.logger import setup_logger
 from utils.parser import build_parser
 from utils.utils import check_model_size, parse_model_name, set_seed
@@ -32,6 +33,8 @@ def main(args):
     model = build_model(args)
     criterion = build_criterion(args, logger)
     optimizer = build_optimizer(args, logger, model)
+    # scheduler = optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=args.epochs)
+    scheduler = CosineWithWarmup(optimizer, 0.1 * args.epochs, args.epochs, args.lr)
     model_num_params = check_model_size(logger, model)
 
     if args.enable_wandb:
@@ -78,6 +81,10 @@ def main(args):
             logger.info(
                 f"Saved model with validation PSNR: {best_valid_psnr:.4f} on every {args.model_save_interval} at epoch {epoch + 1}"
             )
+
+        scheduler.step()
+        if args.enable_wandb:
+            wandb.log({"epoch_lr": scheduler.get_last_lr()})
 
     logger.info(f"Training Finished, saving final model at epoch {epoch}")
     save_model(args, epoch, model, optimizer, f"{args.model_save_path}_final.ckpt")
