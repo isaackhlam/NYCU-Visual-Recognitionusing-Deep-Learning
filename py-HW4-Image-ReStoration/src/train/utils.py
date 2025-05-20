@@ -95,7 +95,7 @@ def build_criterion(args, logger):
     elif args.loss_function == "CharbonnierLoss":
         criterion = CharbonnierLoss()
     elif args.loss_function == "PerceptualLoss":
-        criterion = PerceptualLoss()
+        criterion = PerceptualLoss().to(args.device)
     elif args.loss_function == "SSIMLoss":
         criterion = SSIM(data_range=1.0, size_average=True, channel=3)
     elif args.loss_function == "CompoundLoss":

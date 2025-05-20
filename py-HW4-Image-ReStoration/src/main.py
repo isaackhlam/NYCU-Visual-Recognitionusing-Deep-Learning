@@ -90,7 +90,7 @@ def main(args):
 
         scheduler.step()
         if args.enable_wandb:
-            wandb.log({"epoch_lr": scheduler.get_last_lr()})
+            wandb.log({"epoch_lr": scheduler.get_last_lr()[-1]})
 
     logger.info(f"Training Finished, saving final model at epoch {epoch}")
     save_model(args, epoch, model, optimizer, f"{args.model_save_path}_final.ckpt")
