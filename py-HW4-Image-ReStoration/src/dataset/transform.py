@@ -15,3 +15,9 @@ def get_basic_transform():
         ],
         additional_targets={"label": "image"}
     )
+
+def get_degraded_transform():
+    return A.OneOf([
+        A.RandomRain(brightness_coefficient=0.9, drop_width=1, blur_value=3, p=1.0),
+        A.RandomSnow(snow_point_lower=0.1, snow_point_upper=0.3, brightness_coeff=2.0, p=1.0),
+    ], p=1.0)

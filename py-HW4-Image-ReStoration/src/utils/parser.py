@@ -27,6 +27,7 @@ def build_parser():
     parser.add_argument("--freeze_layer", default=None, type=str)
     parser.add_argument("--enable_wandb", default=False, type=bool)
     parser.add_argument("--transform", default="", type=str)
+    parser.add_argument("--use_real_degraded_p", default=0.5, type=float)
 
     model_args = parser.add_argument_group(
         "model argument", "Model config for PromptIR"

@@ -1,14 +1,18 @@
 from pathlib import Path
 
 import cv2
+import random
 from torch.utils.data import DataLoader, Dataset
 
 
 class ImageDataset(Dataset):
-    def __init__(self, args, transform, file_list):
-        self.transform = transform
+    def __init__(self, args, augment_transform, degrade_transform, file_list=None, isTrain=True):
+        self.augment_transform = augment_transform
+        self.degrade_transform = degrade_transform
         self.input_dir = args.input_dir
         self.label_dir = args.label_dir
+        self.use_real_degraded_p = args.use_real_degraded_p
+        self.isTrain = isTrain
 
         if file_list is not None:
             filenames = file_list
@@ -35,8 +39,12 @@ class ImageDataset(Dataset):
         y = cv2.imread(y)
         y = cv2.cvtColor(y, cv2.COLOR_BGR2RGB)
 
-        if self.transform:
-            transformed = self.transform(image=x, label=y)
+
+        if self.isTrain and random.random() > self.use_real_degraded_p:
+            x = self.degrade_transform(image=y)["image"]
+
+        if self.augment_transform:
+            transformed = self.augment_transform(image=x, label=y)
             x = transformed["image"]
             y = transformed["label"]
 

@@ -2,7 +2,7 @@ from pathlib import Path
 
 import wandb
 from dataset.dataset import ImageDataset, build_dataloader
-from dataset.transform import get_basic_transform
+from dataset.transform import get_basic_transform, get_degraded_transform
 from model.promptIR import build_model
 from sklearn.model_selection import train_test_split
 from train.train import train, valid
@@ -18,13 +18,14 @@ def main(args):
 
     train_transform = get_basic_transform()
     valid_transform = get_basic_transform()
+    degrade_transform = get_degraded_transform()
 
     all_data = [f.name for f in Path(args.input_dir).iterdir()]
     train_data, valid_data = train_test_split(
         all_data, test_size=args.valid_ratio, random_state=args.seed
     )
-    train_data = ImageDataset(args, train_transform, file_list=train_data)
-    valid_data = ImageDataset(args, valid_transform, file_list=valid_data)
+    train_data = ImageDataset(args, train_transform, degrade_transform, file_list=train_data, isTrain=True)
+    valid_data = ImageDataset(args, valid_transform, degrade_transform, file_list=valid_data, isTrain=False)
     train_dataloader = build_dataloader(args, train_data)
     valid_dataloader = build_dataloader(args, valid_data)
 
