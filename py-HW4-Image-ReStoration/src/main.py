@@ -16,8 +16,8 @@ def main(args):
     logger = setup_logger()
     parse_model_name(args, logger)
 
-    train_transform = get_basic_transform()
-    valid_transform = get_basic_transform()
+    train_transform = get_basic_transform(isTrain=True)
+    valid_transform = get_basic_transform(isTrain=False)
     degrade_transform = get_degraded_transform()
 
     all_data = [f.name for f in Path(args.input_dir).iterdir()]
