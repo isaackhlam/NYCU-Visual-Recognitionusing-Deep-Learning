@@ -6,7 +6,6 @@ def get_basic_transform(isTrain=True):
     if isTrain:
         return A.Compose(
             [
-                A.RandomResizedCrop(256, 256, scale=(0.8, 1.0)),
                 A.HorizontalFlip(p=0.5),
                 A.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.1, p=0.7),
                 A.GaussNoise(var_limit=(5.0, 30.0), p=0.3),

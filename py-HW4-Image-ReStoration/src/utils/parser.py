@@ -28,6 +28,9 @@ def build_parser():
     parser.add_argument("--enable_wandb", default=False, type=bool)
     parser.add_argument("--transform", default="", type=str)
     parser.add_argument("--use_real_degraded_p", default=0.5, type=float)
+    parser.add_argument("--l1_weight", default=0.5, type=float)
+    parser.add_argument("--ssim_weight", default=0.3, type=float)
+    parser.add_argument("--perceptual_weight", default=0.2, type=float)
 
     model_args = parser.add_argument_group(
         "model argument", "Model config for PromptIR"
