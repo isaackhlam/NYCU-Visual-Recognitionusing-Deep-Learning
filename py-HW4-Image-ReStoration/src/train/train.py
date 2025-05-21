@@ -1,5 +1,3 @@
-import heapq
-
 import torch
 import torchvision.utils as vutils
 import wandb
@@ -130,24 +128,21 @@ def valid(args, logger, epoch, model, criterion, dataloader):
             psnr_meter.update(psnr.item(), x.size(0))
             ssim_meter.update(ssim.item(), x.size(0))
 
-            counter = 0
             for i in range(x.size(0)):
                 psnr_val = calculate_psnr(output[i : i + 1], y[i : i + 1]).item()
-                heapq.heappush(
-                    worst_psnr_samples,
+                worst_psnr_samples.append(
                     (
-                        -psnr_val,
-                        counter,
+                        psnr_val,
                         {
                             "input": x[i].cpu(),
                             "output": output[i].cpu(),
                             "target": y[i].cpu(),
                         },
-                    ),
+                    )
                 )
-                counter += 1
                 if len(worst_psnr_samples) > 10:
-                    heapq.heappop(worst_psnr_samples)
+                    worst_psnr_samples.sort(key=lambda x: x[0])
+                    worst_psnr_samples = worst_psnr_samples[:10]
 
             p_bar.set_postfix(
                 {
@@ -166,8 +161,7 @@ def valid(args, logger, epoch, model, criterion, dataloader):
             }
         )
 
-        worst_psnr_samples.sort(key=lambda x: x[0])
-        for idx, (psnr_val, _, sample) in enumerate(worst_psnr_samples):
+        for idx, (psnr_val, sample) in enumerate(worst_psnr_samples):
             vis_image = torch.cat(
                 [sample["input"], sample["output"], sample["target"]], dim=2
             )
