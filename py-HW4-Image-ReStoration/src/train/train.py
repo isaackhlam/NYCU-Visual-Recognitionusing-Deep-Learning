@@ -167,7 +167,7 @@ def valid(args, logger, epoch, model, criterion, dataloader):
         )
 
         worst_psnr_samples.sort(key=lambda x: x[0])
-        for idx, (psnr_val, sample) in enumerate(worst_psnr_samples):
+        for idx, (psnr_val, _, sample) in enumerate(worst_psnr_samples):
             vis_image = torch.cat(
                 [sample["input"], sample["output"], sample["target"]], dim=2
             )
