@@ -48,7 +48,9 @@ class ImageDataset(Dataset):
             x = transformed["image"]
             y = transformed["label"]
 
-        return x, y
+        prompt = 'snow' if self.data[idx][0].find('rain') == -1 else 'rain'
+
+        return x, y, prompt
 
 
 class ImageTestDataset(Dataset):

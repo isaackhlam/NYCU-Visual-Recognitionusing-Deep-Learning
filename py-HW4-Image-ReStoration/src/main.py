@@ -4,7 +4,7 @@ import wandb
 from torch import optim
 from dataset.dataset import ImageDataset, build_dataloader
 from dataset.transform import get_basic_transform, get_degraded_transform
-from model.promptIR import build_model
+from model.promptIR_v2 import build_model
 from sklearn.model_selection import train_test_split
 from train.train import train, valid
 from train.utils import build_criterion, build_optimizer, save_model, CosineWithWarmup

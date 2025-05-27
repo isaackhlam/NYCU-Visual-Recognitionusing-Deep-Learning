@@ -60,10 +60,10 @@ def train(args, logger, epoch, model, optimizer, criterion, dataloader):
 
     p_bar = tqdm(dataloader, desc=f"Epoch {epoch+1}/{args.epochs}")
     for batch in p_bar:
-        x, y = batch
+        x, y, p = batch
         x, y = x.to(args.device), y.to(args.device)
 
-        output = model(x)
+        output = model(x, p)
         loss = criterion(output, y)
         psnr = calculate_psnr(output.detach(), y)
         ssim = calculate_ssim(output.detach(), y)
@@ -116,10 +116,10 @@ def valid(args, logger, epoch, model, criterion, dataloader):
     p_bar = tqdm(dataloader, desc=f"Epoch {epoch+1}/{args.epochs}")
     with torch.no_grad():
         for batch in p_bar:
-            x, y = batch
+            x, y, p = batch
             x, y = x.to(args.device), y.to(args.device)
 
-            output = model(x)
+            output = model(x, p)
             loss = criterion(output, y)
             psnr = calculate_psnr(output, y)
             ssim = calculate_ssim(output, y)
