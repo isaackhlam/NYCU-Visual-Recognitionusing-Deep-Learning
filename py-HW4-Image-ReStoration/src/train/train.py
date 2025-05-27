@@ -63,7 +63,8 @@ def train(args, logger, epoch, model, optimizer, criterion, dataloader):
         x, y, p = batch
         x, y = x.to(args.device), y.to(args.device)
 
-        output = model(x, p)
+        # output = model(x, p)
+        output = model(x)
         loss = criterion(output, y)
         psnr = calculate_psnr(output.detach(), y)
         ssim = calculate_ssim(output.detach(), y)
@@ -119,7 +120,8 @@ def valid(args, logger, epoch, model, criterion, dataloader):
             x, y, p = batch
             x, y = x.to(args.device), y.to(args.device)
 
-            output = model(x, p)
+            # output = model(x, p)
+            output = model(x)
             loss = criterion(output, y)
             psnr = calculate_psnr(output, y)
             ssim = calculate_ssim(output, y)

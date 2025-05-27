@@ -5,6 +5,7 @@ from torch import optim
 from dataset.dataset import ImageDataset, build_dataloader
 from dataset.transform import get_basic_transform, get_degraded_transform
 from model.promptIR_v2 import build_model
+from model.model import PromptIR
 from sklearn.model_selection import train_test_split
 from train.train import train, valid
 from train.utils import build_criterion, build_optimizer, save_model, CosineWithWarmup
@@ -30,7 +31,8 @@ def main(args):
     train_dataloader = build_dataloader(args, train_data)
     valid_dataloader = build_dataloader(args, valid_data)
 
-    model = build_model(args)
+    # model = build_model(args)
+    model = PromptIR(decoder=True)
     criterion = build_criterion(args, logger)
     optimizer = build_optimizer(args, logger, model)
     # scheduler = optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=args.epochs)
