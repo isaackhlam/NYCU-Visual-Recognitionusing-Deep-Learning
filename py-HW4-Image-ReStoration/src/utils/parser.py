@@ -1,0 +1,46 @@
+import argparse
+
+
+def build_parser():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--seed", default=42, type=int)
+    parser.add_argument("--batch_size", default=32, type=int)
+    parser.add_argument("--lr", default=1e-5, type=float)
+    parser.add_argument("--device", default="cpu", type=str)
+    parser.add_argument("--patient", default=20, type=int)
+    parser.add_argument("--epochs", default=100, type=int)
+    parser.add_argument("--loss_function", default="L1Loss")
+    parser.add_argument("--optimizer", default="AdamW", type=str)
+    parser.add_argument("--model", default="promptIR", type=str)
+    parser.add_argument("--model_save_path", default="./weights", type=str)
+    parser.add_argument("--model_save_prefix_name", default=None, type=str)
+    parser.add_argument("--model_save_interval", default=10, type=int)
+    parser.add_argument("--pretrain_model_weight", default="DEFAULT", type=str)
+    parser.add_argument("--save_with_generated_name", default=True, type=bool)
+    parser.add_argument("--shuffle_data", default=True, type=bool)
+    parser.add_argument("--dataloader_num_workers", default=4, type=int)
+    parser.add_argument("--input_dir", default="./data/train/degraded", type=str)
+    parser.add_argument("--label_dir", default="./data/train/clean", type=str)
+    parser.add_argument("--test_dir", default="./data/test/degraded", type=str)
+    parser.add_argument("--valid_ratio", default=0.2, type=float)
+    parser.add_argument("--gradient_clipping", default=None, type=float)
+    parser.add_argument("--freeze_layer", default=None, type=str)
+    parser.add_argument("--enable_wandb", default=False, type=bool)
+    parser.add_argument("--transform", default="", type=str)
+    parser.add_argument("--use_real_degraded_p", default=0.5, type=float)
+    parser.add_argument("--l1_weight", default=0.5, type=float)
+    parser.add_argument("--ssim_weight", default=0.3, type=float)
+    parser.add_argument("--perceptual_weight", default=0.2, type=float)
+
+    model_args = parser.add_argument_group(
+        "model argument", "Model config for PromptIR"
+    )
+    model_args.add_argument("--in_channels", default=3, type=int)
+    model_args.add_argument("--out_channels", default=3, type=int)
+    model_args.add_argument("--embed_dim", default=512, type=int)
+    model_args.add_argument("--num_heads", default=8, type=int)
+    model_args.add_argument("--num_transformer_layers", default=6, type=int)
+    model_args.add_argument("--ff_dim", default=2048, type=int)
+    model_args.add_argument("--num_prompts", default=2, type=int)
+    model_args.add_argument("--dropout", default=0.1, type=float)
+    return parser
