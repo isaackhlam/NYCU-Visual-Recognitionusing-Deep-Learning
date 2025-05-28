@@ -28,3 +28,9 @@ Please refer to [README](py-HW2-Digit-Recognition/README.md) of HW2.
 A Instance Segmentation task via MaskRCNN architecture
 
 Please refer to [README](py-HW3-Instance-Segmentation/README.md) of HW3.
+
+## HW4
+
+A Image Restoration task via PromptIR architecture 
+
+Please refer to [README](py-HW4-Image-ReStoration/README.md) of HW4.
